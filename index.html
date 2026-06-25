@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QS Controller</title>
+<title>R Quick Shift</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;600;700&display=swap');
 
@@ -259,15 +259,16 @@
 <header>
   <div class="logo">⚡</div>
   <div>
-    <h1>QS CONTROLLER</h1>
-    <span>ESP32 Quick Shifter</span>
+    <h1>mark v1</h1>
+    <span>Quick Shifter Seting</span>
   </div>
   <div id="statusDot"></div>
 </header>
 
 <div class="container">
 
-  <div id="chromeWarn">⚠ Gunakan Chrome di Android. Web Bluetooth tidak support di Firefox / Safari / iPhone.</div>
+  <div id="chromeWarn">⚠ Rasio gear std kalo cut time terlalu kecil akan menyebabkan 
+  perpindahan gear 1 ke 2 keras/hanya ke triger, rekomendasi bisa di coba dulu 60ms</div>
 
   <!-- MONITOR -->
   <div class="card">
@@ -280,36 +281,36 @@
 
   <!-- KONEKSI -->
   <div class="card">
-    <div class="card-title">Koneksi BLE</div>
+    <div class="card-title">Koneksi modul</div>
     <div id="statusText">Status: Belum terhubung</div>
     <div class="btn-row">
-      <button class="btn btn-orange" id="btnScan" onclick="scanBLE()">🔍 Scan ESP32</button>
+      <button class="btn btn-orange" id="btnScan" onclick="scanBLE()">🔍 Scan modul</button>
       <button class="btn btn-red" id="btnDisc" onclick="disconnect()" disabled>✕ Putus</button>
     </div>
   </div>
 
   <!-- QUICK SHIFTER -->
   <div class="card">
-    <div class="card-title">Quick Shifter</div>
+    <div class="card-title">Trishold</div>
 
     <div class="input-row">
-      <span class="input-label">SETVAL</span>
+      <span class="input-label">QS aktif</span>
       <input type="number" id="i_setval" placeholder="nilai sens tekan">
       <button class="btn-set" id="b_setval" onclick="kirimInput('SETVAL','i_setval')" disabled>SET</button>
     </div>
 
     <div class="input-row">
       <span class="input-label">Threshold</span>
-      <input type="number" id="i_t" placeholder="selisih manual">
+      <input type="number" id="i_t" placeholder="manual/kosongkan saja">
       <button class="btn-set" id="b_t" onclick="kirimInput('T','i_t')" disabled>SET</button>
     </div>
 
     <div class="divider"></div>
 
-    <div style="font-size:11px; color:var(--muted); margin-bottom:6px; font-family:var(--mono)">MODE TUAS</div>
+    <div style="font-size:11px; color:var(--muted); margin-bottom:6px; font-family:var(--mono)">MODE TUAS PERPINDAHAN</div>
     <div class="mode-toggle">
-      <button id="modeTekan" onclick="setMode(0)" disabled>⬇ TEKAN (M0)</button>
-      <button id="modeTarik" onclick="setMode(1)" disabled>⬆ TARIK (M1)</button>
+      <button id="modeTekan" onclick="setMode(0)" disabled>⬇ TEKAN </button>
+      <button id="modeTarik" onclick="setMode(1)" disabled>⬆ TARIK </button>
     </div>
   </div>
 
@@ -352,12 +353,12 @@
       <button class="btn-set" onclick="kirimInput('PL','i_pl')" disabled id="b_pl">SET</button>
     </div>
     <div class="input-row">
-      <span class="input-label">Cut Dur</span>
+      <span class="input-label">Cut Durasi off</span>
       <input type="number" id="i_pd" placeholder="ms">
       <button class="btn-set" onclick="kirimInput('PD','i_pd')" disabled id="b_pd">SET</button>
     </div>
     <div class="input-row">
-      <span class="input-label">Rest Dur</span>
+      <span class="input-label">Rest Durasi on</span>
       <input type="number" id="i_pr" placeholder="ms">
       <button class="btn-set" onclick="kirimInput('PR','i_pr')" disabled id="b_pr">SET</button>
     </div>
