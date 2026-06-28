@@ -240,10 +240,10 @@
         <div class="card-title">QUICK SHIFTER aktif</div>
         <div class="input-row">
             <label>Trigger</label>
-            <input type="number" id="targetVal" placeholder="Misal: 1900" onchange="sendSetting('SETVAL' + this.value, 'targetVal')">
+            <input type="number" id="targetVal" placeholder="Misal: 1900" data-cmd="SETVAL">
         </div>
         <div class="input-row" style="margin-top: 15px;">
-            <select id="shiftMode" style="width: 100%;" onchange="sendSetting('M' + this.value, 'shiftMode')">
+            <select id="shiftMode" style="width: 100%;" data-cmd="M">
                 <option value="0">⬇ TEKAN / Compression</option>
                 <option value="1">⬆ TARIK / Tension</option>
             </select>
@@ -253,20 +253,20 @@
 
     <div class="card">
         <div class="card-title">CUT DURATION QS</div>
-        <div class="input-row"><label>1000 - 4000</label><input type="number" id="c1" placeholder="ms" onchange="sendSetting('C1:' + this.value, 'c1')"></div>
-        <div class="input-row"><label>4000 - 6000</label><input type="number" id="c2" placeholder="ms" onchange="sendSetting('C2:' + this.value, 'c2')"></div>
-        <div class="input-row"><label>6000 - 8000</label><input type="number" id="c3" placeholder="ms" onchange="sendSetting('C3:' + this.value, 'c3')"></div>
-        <div class="input-row"><label>8k - 10k</label><input type="number" id="c4" placeholder="ms" onchange="sendSetting('C4:' + this.value, 'c4')"></div>
-        <div class="input-row"><label>10k - 12k</label><input type="number" id="c5" placeholder="ms" onchange="sendSetting('C5:' + this.value, 'c5')"></div>
-        <div class="input-row"><label>12k - 14k</label><input type="number" id="c6" placeholder="ms" onchange="sendSetting('C6:' + this.value, 'c6')"></div>
-        <div class="input-row"><label>14k+ RPM</label><input type="number" id="c7" placeholder="ms" onchange="sendSetting('C7:' + this.value, 'c7')"></div>
+        <div class="input-row"><label>1000 - 4000</label><input type="number" id="c1" placeholder="ms" data-cmd="C1:"></div>
+        <div class="input-row"><label>4000 - 6000</label><input type="number" id="c2" placeholder="ms" data-cmd="C2:"></div>
+        <div class="input-row"><label>6000 - 8000</label><input type="number" id="c3" placeholder="ms" data-cmd="C3:"></div>
+        <div class="input-row"><label>8k - 10k</label><input type="number" id="c4" placeholder="ms" data-cmd="C4:"></div>
+        <div class="input-row"><label>10k - 12k</label><input type="number" id="c5" placeholder="ms" data-cmd="C5:"></div>
+        <div class="input-row"><label>12k - 14k</label><input type="number" id="c6" placeholder="ms" data-cmd="C6:"></div>
+        <div class="input-row"><label>14k+ RPM</label><input type="number" id="c7" placeholder="ms" data-cmd="C7:"></div>
     </div>
 
     <div class="card">
         <div class="card-title">PIT LIMITER</div>
-        <div class="input-row"><label>Limit RPM</label><input type="number" id="pl" placeholder="RPM" onchange="sendSetting('PL' + this.value, 'pl')"></div>
-        <div class="input-row"><label>Cut off.</label><input type="number" id="pd" placeholder="ms" onchange="sendSetting('PD' + this.value, 'pd')"></div>
-        <div class="input-row"><label>Rest on.</label><input type="number" id="pr" placeholder="ms" onchange="sendSetting('PR' + this.value, 'pr')"></div>
+        <div class="input-row"><label>Limit RPM</label><input type="number" id="pl" placeholder="RPM" data-cmd="PL"></div>
+        <div class="input-row"><label>Cut off.</label><input type="number" id="pd" placeholder="ms" data-cmd="PD"></div>
+        <div class="input-row"><label>Rest on.</label><input type="number" id="pr" placeholder="ms" data-cmd="PR"></div>
     </div>
 
     <div class="card">
@@ -362,11 +362,48 @@
             logToTerminal("Perangkat terputus.");
         }
 
+        // ========================================================
+        // LOGIKA AUTO-TYPE & DELAY (GAUSAH PEJET ENTER)
+        // ========================================================
+        let debounceTimers = {};
+
+        document.querySelectorAll('input[data-cmd], select[data-cmd]').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const el = e.target;
+                const cmdPrefix = el.getAttribute('data-cmd');
+                
+                // Hapus hitungan mundur sebelumnya jika masih mengetik
+                clearTimeout(debounceTimers[el.id]);
+                
+                // Langsung ubah warna jadi MERAH tanda sedang diedit/belum tersimpan
+                el.style.color = "var(--accent-red)";
+                
+                // Tunggu 0.8 detik setelah selesai mengetik, lalu kirim otomatis
+                debounceTimers[el.id] = setTimeout(() => {
+                    sendSetting(cmdPrefix + el.value, el.id);
+                }, 800); 
+            });
+        });
+
+        async function sendSetting(command, inputId) {
+            const inputElement = document.getElementById(inputId);
+            if (inputElement && inputElement.value !== "") {
+                inputElement.style.color = "var(--accent-red)"; // Pastikan tetap merah saat ngirim
+                await sendCmd(command);
+            }
+        }
+
+        // ========================================================
+        // LOGIKA PARSING/MENANGKAP TEKS DARI ESP32
+        // ========================================================
+        const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+
         function handleNotifications(event) {
             let value = event.target.value;
             let decoder = new TextDecoder('utf-8');
             let text = decoder.decode(value).trim();
 
+            // 1. Parsing RPM dan Sensor
             if (text.includes("RPM:") && text.includes("Sens:")) {
                 let rpmMatch = text.match(/RPM:\s*(\d+)/);
                 let sensMatch = text.match(/Sens:\s*(\d+)/);
@@ -384,14 +421,39 @@
                     monitorText.style.color = "var(--text-main)";
                 }
             } 
+            // 2. Jika sukses tersimpan, KEMBALIKAN SEMUA WARNA JADI PUTIH
             else if (text.includes("=== SETTING PERMANEN TERSIMPAN ===")) {
                 document.querySelectorAll('input, select').forEach(el => {
-                    el.style.color = "#fff";
+                    if (el.value !== "") el.style.color = "#fff";
                 });
                 logToTerminal("INFO: Data Tersimpan di EEPROM.");
             } 
+            // 3. AUTO-FILL DATA BAR DARI ESP32 (Sistem Baru Auto-Sync)
+            else if (text.includes("Threshold :")) setVal('targetVal', text.split(":")[1].trim());
+            else if (text.includes("ShiftMode :")) setVal('shiftMode', text.split(":")[1].trim());
+            else if (text.includes("Pit Limit :")) setVal('pl', text.split(":")[1].trim());
+            else if (text.includes("Pit Cut   :")) setVal('pd', text.split(":")[1].trim());
+            else if (text.includes("Pit Rest  :")) setVal('pr', text.split(":")[1].trim());
+            
+            else if (text.includes("C1:1k-4k")) setVal('c1', text.split(":")[2].trim());
+            else if (text.includes("C2:4k-6k")) setVal('c2', text.split(":")[2].trim());
+            else if (text.includes("C3:6k-8k")) setVal('c3', text.split(":")[2].trim());
+            else if (text.includes("C4:8k-10k")) setVal('c4', text.split(":")[2].trim());
+            else if (text.includes("C5:10k-12k")) setVal('c5', text.split(":")[2].trim());
+            else if (text.includes("C6:12k-14k")) setVal('c6', text.split(":")[2].trim());
+            else if (text.includes("C7:14k+")) setVal('c7', text.split(":")[2].trim());
+
+            // 4. AUTO-FILL DARI TOMBOL "INFO" (Sistem Lama)
+            else if (text.includes("Cut 1k-4k")) setVal('c1', parseInt(text.split(":")[1]));
+            else if (text.includes("Cut 4k-6k")) setVal('c2', parseInt(text.split(":")[1]));
+            else if (text.includes("Cut 6k-8k")) setVal('c3', parseInt(text.split(":")[1]));
+            else if (text.includes("Cut 8k-10k")) setVal('c4', parseInt(text.split(":")[1]));
+            else if (text.includes("Cut 10k-12k")) setVal('c5', parseInt(text.split(":")[1]));
+            else if (text.includes("Cut 12k-14k")) setVal('c6', parseInt(text.split(":")[1]));
+            else if (text.includes("Cut 14k+")) setVal('c7', parseInt(text.split(":")[1]));
+            
             else {
-                logToTerminal(text);
+                logToTerminal(text); // Tampilkan sisanya ke layar hitam
             }
         }
 
@@ -403,14 +465,6 @@
                 logToTerminal("TX: " + command);
             } catch (error) {
                 logToTerminal("Gagal TX: " + error);
-            }
-        }
-
-        async function sendSetting(command, inputId) {
-            const inputElement = document.getElementById(inputId);
-            if (inputElement && inputElement.value !== "") {
-                inputElement.style.color = "var(--accent-red)"; // Jadi merah saat pending
-                await sendCmd(command);
             }
         }
     </script>
