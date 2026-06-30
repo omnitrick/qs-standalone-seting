@@ -9,16 +9,16 @@
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap');
         
         :root { 
-            --bg-main: #0f1115;       /* Background paling gelap */
-            --bg-card: #16191f;       /* Background card */
-            --bg-input: #0a0c0f;      /* Background kolom input */
-            --text-main: #94a3b8;     /* Abu-abu terang untuk teks sekunder */
-            --text-light: #f1f5f9;    /* Putih terang untuk teks utama */
-            --accent-main: #64748b;   /* Slate Gray (Pengganti Oren) */
-            --accent-red: #ef4444;    /* Merah modern */
-            --accent-green: #10b981;  /* Hijau modern */
-            --accent-yellow: #eab308; /* Kuning untuk warning */
-            --border-color: #1e293b;  /* Garis batas abu-abu gelap */
+            --bg-main: #0f1115;       
+            --bg-card: #16191f;       
+            --bg-input: #0a0c0f;      
+            --text-main: #94a3b8;     
+            --text-light: #f1f5f9;    
+            --accent-main: #64748b;   
+            --accent-red: #ef4444;    
+            --accent-green: #10b981;  
+            --accent-yellow: #eab308; 
+            --border-color: #1e293b;  
         }
 
         body { 
@@ -128,7 +128,7 @@
             font-family: 'JetBrains Mono', monospace; 
             font-size: 2.5rem; 
             font-weight: bold; 
-            color: var(--text-light); /* Default putih, berubah hijau saat nyala via JS */
+            color: var(--text-light); 
             transition: color 0.3s ease;
         }
         .monitor-status {
@@ -139,6 +139,76 @@
             margin-top: 15px;
             padding-top: 15px;
             border-top: 1px dashed var(--border-color);
+        }
+
+        /* VISUAL BAR aRacer STYLE */
+        .qs-bar-container {
+            background: linear-gradient(180deg, #1a1e24 0%, #0d0f12 100%);
+            border-radius: 30px;
+            padding: 20px 15px 15px 15px;
+            margin-top: 15px;
+            border: 2px solid #232830;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.8);
+            position: relative;
+        }
+        .qs-bar-title {
+            text-align: center;
+            color: #d1d5db;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+        }
+        .qs-bar-track {
+            background: #888;
+            height: 14px;
+            border-radius: 10px;
+            position: relative;
+            margin: 0 10px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+        /* Tick marks di dalam track */
+        .qs-tick {
+            position: absolute;
+            top: 100%;
+            width: 2px;
+            height: 6px;
+            background: #555;
+            margin-top: 4px;
+        }
+        .qs-bar-pointer {
+            position: absolute;
+            left: 50%; /* Default tengah (500) */
+            top: -10px;
+            transform: translateX(-50%);
+            transition: left 0.1s linear;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+        .qs-triangle {
+            width: 0; 
+            height: 0; 
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 10px solid #fff;
+            margin-bottom: 1px;
+        }
+        .qs-line {
+            width: 4px;
+            height: 16px;
+            background: #ff0000;
+        }
+        .qs-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 10px 0 10px;
+            color: #777;
+            font-size: 0.7rem;
+            font-weight: bold;
+            font-family: 'JetBrains Mono', monospace;
         }
 
         /* BUTTONS */
@@ -251,6 +321,30 @@
                     <div class="monitor-value" id="sensVal">-</div>
                 </div>
             </div>
+            
+            <!-- VISUAL BAR TAMBAHAN -->
+            <div class="qs-bar-container">
+                <div class="qs-bar-title">QS Action State</div>
+                <div class="qs-bar-track">
+                    <div class="qs-tick" style="left: 20%;"></div>
+                    <div class="qs-tick" style="left: 40%;"></div>
+                    <div class="qs-tick" style="left: 60%;"></div>
+                    <div class="qs-tick" style="left: 80%;"></div>
+                    <div class="qs-bar-pointer" id="qsPointer">
+                        <div class="qs-triangle"></div>
+                        <div class="qs-line"></div>
+                    </div>
+                </div>
+                <div class="qs-bar-labels">
+                    <span style="opacity: 0;">0</span>
+                    <span>200</span>
+                    <span>400</span>
+                    <span>600</span>
+                    <span>800</span>
+                    <span style="opacity: 0;">1k</span>
+                </div>
+            </div>
+
             <div class="monitor-status" id="monitorText">Menunggu koneksi...</div>
         </div>
     </div>
@@ -270,7 +364,7 @@
         <div class="card-title">Setup Quick Shifter</div>
         <div class="input-row">
             <label>ADC Trigger</label>
-            <input type="number" id="targetVal" placeholder="Misal: 1900" data-cmd="SETVAL">
+            <input type="number" id="targetVal" placeholder="Misal: 450" data-cmd="SETVAL">
         </div>
         <div class="input-row">
             <select id="shiftMode" style="width: 100%; text-align: left; padding-left: 10px;" data-cmd="M">
@@ -323,6 +417,7 @@
         const terminal = document.getElementById('terminal');
         const rpmVal = document.getElementById('rpmVal');
         const sensVal = document.getElementById('sensVal');
+        const qsPointer = document.getElementById('qsPointer');
 
         function logToTerminal(text, type = 'normal') {
             let cssClass = "";
@@ -340,7 +435,6 @@
                 headerDot.style.boxShadow = "0 0 10px var(--accent-green)";
                 monitorText.innerText = "Monitoring Aktif...";
                 
-                // Ubah tombol koneksi
                 connectBtn.disabled = true;
                 connectBtn.classList.replace('btn-main', 'btn-dark');
                 disconnectBtn.disabled = false;
@@ -354,8 +448,8 @@
                 rpmVal.innerText = "-";
                 rpmVal.style.color = "var(--text-light)";
                 sensVal.innerText = "-";
+                qsPointer.style.left = "50%"; // Reset jarum ke tengah
                 
-                // Kembalikan tombol
                 connectBtn.disabled = false;
                 connectBtn.classList.replace('btn-dark', 'btn-main');
                 disconnectBtn.disabled = true;
@@ -401,7 +495,7 @@
         }
 
         // ========================================================
-        // LOGIKA AUTO-TYPE & DELAY (TANPA ENTER)
+        // LOGIKA AUTO-TYPE & MENGALIKAN 4 (KIRIM KE ESP32)
         // ========================================================
         let debounceTimers = {};
 
@@ -411,63 +505,9 @@
                 const cmdPrefix = el.getAttribute('data-cmd');
                 
                 clearTimeout(debounceTimers[el.id]);
-                el.style.color = "var(--accent-yellow)"; // Indikator kuning saat ngedit
+                el.style.color = "var(--accent-yellow)"; 
                 
                 debounceTimers[el.id] = setTimeout(() => {
-                    sendSetting(cmdPrefix + el.value, el.id);
-                }, 800); 
-            });
-        });
-
-        async function sendSetting(command, inputId) {
-            const inputElement = document.getElementById(inputId);
-            if (inputElement && inputElement.value !== "") {
-                inputElement.style.color = "var(--accent-yellow)"; 
-                await sendCmd(command);
-            }
-        }
-
-        // ========================================================
-        // LOGIKA PARSING TEKS DARI ESP32
-        // ========================================================
-        const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-
-        function handleNotifications(event) {
-            let value = event.target.value;
-            let decoder = new TextDecoder('utf-8');
-            let text = decoder.decode(value).trim();
-
-            if (text.includes("RPM:") && text.includes("Sens:")) {
-                let rpmMatch = text.match(/RPM:\s*(\d+)/);
-                let sensMatch = text.match(/Sens:\s*(\d+)/);
-                
-                if (rpmMatch) rpmVal.innerText = rpmMatch[1];
-                if (sensMatch) sensVal.innerText = sensMatch[1];
-                
-                if (text.includes("[PIT ON]")) {
-                    rpmVal.style.color = "var(--accent-red)";
-                    monitorText.innerText = "⚠ PIT LIMITER AKTIF ⚠";
-                    monitorText.style.color = "var(--accent-red)";
-                } else {
-                    rpmVal.style.color = "var(--accent-green)";
-                    monitorText.innerText = "Monitoring Aktif...";
-                    monitorText.style.color = "var(--text-main)";
-                }
-            } 
-            else if (text.includes("=== SETTING PERMANEN TERSIMPAN ===")) {
-                document.querySelectorAll('input, select').forEach(el => {
-                    if (el.value !== "") el.style.color = "#fff";
-                });
-                logToTerminal("INFO: Data sukses tersimpan di EEPROM.", "rx");
-            } 
-            else if (text.includes("Threshold :")) setVal('targetVal', text.split(":")[1].trim());
-            else if (text.includes("ShiftMode :")) setVal('shiftMode', text.split(":")[1].trim());
-            else if (text.includes("Pit Limit :")) setVal('pl', text.split(":")[1].trim());
-            else if (text.includes("Pit Cut   :")) setVal('pd', text.split(":")[1].trim());
-            else if (text.includes("Pit Rest  :")) setVal('pr', text.split(":")[1].trim());
-            
-            else if (text.includes("C1:1k-4k")) setVal('c1', text.split(":")[2].trim());
-            else if (text.includes("C2:4k-6k")) setVal('c2', text.split(":")[2].trim());
-            else if (text.includes("C3:6k-8k")) setVal('c3', text.split(":")[2].trim());
-            else if (text.includes("C4:8k-10k")) setVal('c4', text.split(":")[2].trim());
-            else if (text.includes("C5:10k-12k")) setVal('c5', text.split(":")[2].t
+                    // LOGIKA KALI 4 KHUSUS UNTUK SETVAL
+                    let finalCmd = cmdPrefix + el.value;
+                    if (
