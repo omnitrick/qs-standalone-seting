@@ -273,16 +273,17 @@ const TX_UUID      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 let bleDevice, rxCharacteristic, txCharacteristic;
 let isConnecting = false;
 
-// RPM CORRECTION — default x2, bisa diubah lewat tombol +/-
-let rpmMultiplier = 2.0;
+// SESUDAH
+let rpmMultiplier = parseFloat(localStorage.getItem('rpmMult') || '2.0');
+document.getElementById('rpmMult').textContent = rpmMultiplier.toFixed(1);
 
 function adjustRpm(delta) {
     rpmMultiplier = Math.round((rpmMultiplier + delta) * 10) / 10;
     if (rpmMultiplier < 0.1) rpmMultiplier = 0.1;
     if (rpmMultiplier > 9.9) rpmMultiplier = 9.9;
     document.getElementById('rpmMult').textContent = rpmMultiplier.toFixed(1);
+    localStorage.setItem('rpmMult', rpmMultiplier); // simpan otomatis
 }
-
 const connectBtn    = document.getElementById('connectBtn');
 const disconnectBtn = document.getElementById('disconnectBtn');
 const bleState      = document.getElementById('bleState');
