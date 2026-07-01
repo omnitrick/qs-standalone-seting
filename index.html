@@ -125,7 +125,7 @@
 <header class="app-header">
     <div class="app-icon">⚡</div>
     <div class="app-title">
-        <h1>penganguran tek</h1>
+        <h1>penganguran</h1>
         <p>Quick Shifter</p>
     </div>
     <div class="status-dot" id="headerDot"></div>
@@ -196,9 +196,9 @@
     <div class="input-row"><label>1000 - 4000</label><input type="number" id="c1" placeholder="ms" data-cmd="C1:"></div>
     <div class="input-row"><label>4000 - 6000</label><input type="number" id="c2" placeholder="ms" data-cmd="C2:"></div>
     <div class="input-row"><label>6000 - 8000</label><input type="number" id="c3" placeholder="ms" data-cmd="C3:"></div>
-    <div class="input-row"><label>8k - 10k</label>  <input type="number" id="c4" placeholder="ms" data-cmd="C4:"></div>
-    <div class="input-row"><label>10k - 12k</label> <input type="number" id="c5" placeholder="ms" data-cmd="C5:"></div>
-    <div class="input-row"><label>12k - 14k</label> <input type="number" id="c6" placeholder="ms" data-cmd="C6:"></div>
+    <div class="input-row"><label>8000 - 10000</label>  <input type="number" id="c4" placeholder="ms" data-cmd="C4:"></div>
+    <div class="input-row"><label>10000 - 12000</label> <input type="number" id="c5" placeholder="ms" data-cmd="C5:"></div>
+    <div class="input-row"><label>12000 - 14000</label> <input type="number" id="c6" placeholder="ms" data-cmd="C6:"></div>
     <div class="input-row"><label>14k+ RPM</label>  <input type="number" id="c7" placeholder="ms" data-cmd="C7:"></div>
 </div>
 
@@ -375,7 +375,7 @@ function handleNotifications(event) {
     }
     else if (text.includes('=== SETTING PERMANEN TERSIMPAN ===')) {
         document.querySelectorAll('input,select').forEach(e => { if(e.value!=='') e.style.color='#fff'; });
-        logToTerminal('INFO: Data Tersimpan di EEPROM.');
+        logToTerminal('INFO: Data Tersimpan.');
     }
     else if (text.includes('Threshold :'))  setVal('targetVal', Math.round(parseInt(text.split(':')[1].trim()) / 4));
     else if (text.includes('ShiftMode :'))  setVal('shiftMode', text.split(':')[1].trim());
