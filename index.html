@@ -5,466 +5,400 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QS Controller Dashboard</title>
     <style>
-        /* TEMA WARNA & FONT */
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap');
-        
         :root { 
-            --bg-main: #0f1115;       /* Diubah jadi gelap abu-abu */
+            --bg-main: #0f1115;
             --bg-card: #16191f; 
             --bg-input: #0a0c0f;
             --text-main: #94a3b8; 
             --text-light: #f1f5f9; 
-            --accent-orange: #64748b; /* Warna Oren diganti jadi Slate/Grey */
+            --accent-orange: #64748b;
             --accent-red: #ef4444; 
             --accent-green: #10b981;
             --border-color: #1e293b;
         }
-
         body { 
             font-family: 'Roboto', sans-serif; 
             background-color: var(--bg-main); 
             color: var(--text-light); 
-            margin: 0; 
-            padding: 15px; 
-            padding-bottom: 40px;
+            margin: 0; padding: 15px; padding-bottom: 40px;
         }
-
-        /* HEADER APP */
         .app-header {
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
             padding: 10px 0 20px 0;
             border-bottom: 2px solid var(--accent-orange);
             margin-bottom: 20px;
         }
         .app-icon {
-            background: var(--accent-orange);
-            color: #fff;
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-right: 15px;
+            background: var(--accent-orange); color: #fff;
+            width: 45px; height: 45px; border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 24px; font-weight: bold; margin-right: 15px;
         }
         .app-title h1 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; }
         .app-title p { margin: 2px 0 0 0; font-size: 0.75rem; color: var(--text-main); font-family: 'JetBrains Mono', monospace;}
         .status-dot {
             width: 12px; height: 12px; border-radius: 50%;
             background-color: var(--accent-red);
-            margin-left: auto;
-            box-shadow: 0 0 8px var(--accent-red);
+            margin-left: auto; box-shadow: 0 0 8px var(--accent-red);
+            transition: all 0.3s;
         }
-
-        /* WARNING BOX */
         .warning-box {
             background: rgba(100, 116, 139, 0.1);
             border: 1px solid rgba(100, 116, 139, 0.3);
-            color: #94a3b8;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-            line-height: 1.4;
+            color: #94a3b8; padding: 15px; border-radius: 8px;
+            font-size: 0.85rem; margin-bottom: 20px; line-height: 1.4;
             font-family: 'JetBrains Mono', monospace;
         }
-
-        /* CARD STYLE */
+        /* ALERT ERROR */
+        .alert-err {
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.4);
+            color: #fca5a5; padding: 12px; border-radius: 8px;
+            font-size: 0.8rem; margin-bottom: 15px;
+            font-family: 'JetBrains Mono', monospace; display: none; line-height: 1.5;
+        }
         .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 15px; margin-bottom: 20px;
         }
         .card-title {
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: var(--accent-orange);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            letter-spacing: 1px;
+            font-size: 0.85rem; font-weight: bold; color: var(--accent-orange);
+            margin-bottom: 15px; display: flex; align-items: center; letter-spacing: 1px;
         }
         .card-title::before {
-            content: "";
-            display: inline-block;
-            width: 3px;
-            height: 14px;
-            background: var(--accent-orange);
-            margin-right: 8px;
+            content: ""; display: inline-block; width: 3px; height: 14px;
+            background: var(--accent-orange); margin-right: 8px;
         }
-
-        /* BIG MONITOR DISPLAY */
         .monitor-display {
-            background: var(--bg-input);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border-color);
+            background: var(--bg-input); border-radius: 8px; padding: 20px;
+            margin-bottom: 15px; border: 1px solid var(--border-color);
         }
-        .monitor-grid {
-            display: flex;
-            justify-content: space-between;
-            text-align: center;
-        }
+        .monitor-grid { display: flex; justify-content: space-between; text-align: center; }
         .monitor-box { flex: 1; }
         .monitor-box:first-child { border-right: 1px solid var(--border-color); }
         .monitor-label { font-size: 0.75rem; color: var(--text-main); font-family: 'JetBrains Mono', monospace; margin-bottom: 5px; }
         .monitor-value { 
-            font-family: 'JetBrains Mono', monospace; 
-            font-size: 2.8rem; 
-            font-weight: bold; 
-            color: var(--accent-green); 
-            text-shadow: 0 0 10px rgba(46, 213, 115, 0.2);
+            font-family: 'JetBrains Mono', monospace; font-size: 2.8rem;
+            font-weight: bold; color: var(--accent-green);
+            text-shadow: 0 0 10px rgba(46, 213, 115, 0.2); transition: color 0.3s;
         }
         .monitor-status {
-            font-size: 0.8rem;
-            color: var(--text-main);
-            font-family: 'JetBrains Mono', monospace;
-            text-align: left;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed var(--border-color);
+            font-size: 0.8rem; color: var(--text-main); font-family: 'JetBrains Mono', monospace;
+            text-align: left; margin-top: 15px; padding-top: 15px;
+            border-top: 1px dashed var(--border-color); transition: color 0.3s;
         }
-
-        /* BUTTONS */
         .btn-group { display: flex; gap: 10px; }
         .btn {
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
+            padding: 12px 15px; border-radius: 8px; border: none;
+            font-weight: bold; font-size: 0.9rem; cursor: pointer; flex: 1;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            transition: opacity 0.2s;
         }
         .btn-orange { background: var(--accent-orange); color: white; }
         .btn-dark { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); }
-        .btn-dark:disabled { opacity: 0.5; cursor: not-allowed; }
-        .w-100 { width: 100%; margin-top: 10px; }
-
-        /* INPUT SETTINGS */
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .w-100 { width: 100%; margin-top: 10px; box-sizing: border-box; }
         .input-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 12px;
         }
-        .input-row label {
-            color: var(--text-main);
-            font-size: 0.9rem;
-            font-family: 'JetBrains Mono', monospace;
-            flex: 1;
-        }
+        .input-row label { color: var(--text-main); font-size: 0.9rem; font-family: 'JetBrains Mono', monospace; flex: 1; }
         .input-row input, .input-row select {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: #fff;
-            padding: 10px;
-            border-radius: 6px;
-            width: 140px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1rem;
-            text-align: center;
-            transition: color 0.3s ease;
+            background: var(--bg-input); border: 1px solid var(--border-color);
+            color: #fff; padding: 10px; border-radius: 6px; width: 140px;
+            font-family: 'JetBrains Mono', monospace; font-size: 1rem;
+            text-align: center; transition: color 0.3s ease;
         }
         .input-row input:focus, .input-row select:focus { outline: 1px solid var(--accent-orange); }
-
-        /* LOG TERMINAL */
         .log-box {
-            background: var(--bg-input);
-            color: var(--accent-green);
-            font-family: 'JetBrains Mono', monospace;
-            padding: 12px;
-            height: 120px;
-            overflow-y: scroll;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            border: 1px solid var(--border-color);
-            margin-top: 10px;
+            background: var(--bg-input); color: var(--accent-green);
+            font-family: 'JetBrains Mono', monospace; padding: 12px;
+            height: 120px; overflow-y: scroll; border-radius: 8px;
+            font-size: 0.75rem; border: 1px solid var(--border-color); margin-top: 10px;
         }
+        .log-tx { color: #64748b; }
+        .log-err { color: var(--accent-red); }
     </style>
 </head>
 <body>
 
-    <header class="app-header">
-        <div class="app-icon">⚡</div>
-        <div class="app-title">
-            <h1>penganguran tek</h1>
-            <p>Quick Shifter</p>
-        </div>
-        <div class="status-dot" id="headerDot"></div>
-    </header>
-
-    <div class="warning-box">
-        ⚠ jare kasdi nak butuhmu pasir aku yo butuh
+<header class="app-header">
+    <div class="app-icon">⚡</div>
+    <div class="app-title">
+        <h1>penganguran tek</h1>
+        <p>Quick Shifter</p>
     </div>
+    <div class="status-dot" id="headerDot"></div>
+</header>
 
-    <div class="card">
-        <div class="card-title">MONITOR</div>
-        <div class="monitor-display">
-            <div class="monitor-grid">
-                <div class="monitor-box">
-                    <div class="monitor-label">RPM ENGINE</div>
-                    <div class="monitor-value" id="rpmVal">-</div>
-                </div>
-                <div class="monitor-box">
-                    <div class="monitor-label">SENSOR ADC</div>
-                    <div class="monitor-value" id="sensVal">-</div>
+<div class="warning-box">⚠ jare kasdi nak butuhmu pasir aku yo butuh</div>
+
+<!-- muncul kalau error / tidak support -->
+<div class="alert-err" id="alertErr"></div>
+
+<div class="card">
+    <div class="card-title">MONITOR</div>
+    <div class="monitor-display">
+        <div class="monitor-grid">
+            <div class="monitor-box">
+                <div class="monitor-label">RPM ENGINE</div>
+                <div class="monitor-value" id="rpmVal">-</div>
+            </div>
+            <div class="monitor-box">
+                <div class="monitor-label">SENSOR ADC</div>
+                <div class="monitor-value" id="sensVal">-</div>
+            </div>
+        </div>
+        <div style="background:linear-gradient(180deg,#1a1e24 0%,#0d0f12 100%);border-radius:20px;padding:15px;margin-top:15px;border:1px solid #232830;position:relative;">
+            <div style="text-align:center;color:#d1d5db;font-size:0.7rem;letter-spacing:1px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;">QS ACTION STATE</div>
+            <div style="background:#555;height:10px;border-radius:5px;position:relative;margin:0 5px;">
+                <div id="qsPointer" style="position:absolute;left:50%;top:-8px;transform:translateX(-50%);transition:left 0.1s linear;display:flex;flex-direction:column;align-items:center;z-index:10;">
+                    <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #fff;margin-bottom:1px;"></div>
+                    <div style="width:3px;height:12px;background:#ff4757;"></div>
                 </div>
             </div>
-            
-            <div style="background: linear-gradient(180deg, #1a1e24 0%, #0d0f12 100%); border-radius: 20px; padding: 15px; margin-top: 15px; border: 1px solid #232830; position: relative;">
-                <div style="text-align: center; color: #d1d5db; font-size: 0.7rem; letter-spacing: 1px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">QS ACTION STATE</div>
-                <div style="background: #555; height: 10px; border-radius: 5px; position: relative; margin: 0 5px;">
-                    <div id="qsPointer" style="position: absolute; left: 50%; top: -8px; transform: translateX(-50%); transition: left 0.1s linear; display: flex; flex-direction: column; align-items: center; z-index: 10;">
-                        <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid #fff; margin-bottom: 1px;"></div>
-                        <div style="width: 3px; height: 12px; background: #ff4757;"></div>
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 8px; color: #777; font-size: 0.65rem; font-family: 'JetBrains Mono', monospace;">
-                    <span>0</span><span>200</span><span>400</span><span>600</span><span>800</span><span>1k</span>
-                </div>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;color:#777;font-size:0.65rem;font-family:'JetBrains Mono',monospace;">
+                <span>0</span><span>200</span><span>400</span><span>600</span><span>800</span><span>1k</span>
             </div>
-
-            <div class="monitor-status" id="monitorText">Belum terhubung...</div>
         </div>
+        <div class="monitor-status" id="monitorText">Belum terhubung...</div>
     </div>
+</div>
 
-    <div class="card">
-        <div class="card-title">KONEKSI MODUL</div>
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-main); margin-bottom: 15px;">
-            Status: <span id="bleState">Belum terhubung koyo cintamu</span>
-        </div>
-        <div class="btn-group">
-            <button id="connectBtn" class="btn btn-orange">🔍 Scan modul</button>
-            <button id="disconnectBtn" class="btn btn-dark" disabled>✕ Putus cintamu</button>
-        </div>
+<div class="card">
+    <div class="card-title">KONEKSI MODUL</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text-main);margin-bottom:15px;">
+        Status: <span id="bleState">Belum terhubung koyo cintamu</span>
     </div>
-
-    <div class="card">
-        <div class="card-title">QUICK SHIFTER aktif</div>
-        <div class="input-row">
-            <label>Trigger</label>
-            <input type="number" id="targetVal" placeholder="Misal: 450" data-cmd="SETVAL">
-        </div>
-        <div class="input-row" style="margin-top: 15px;">
-            <select id="shiftMode" style="width: 100%;" data-cmd="M">
-                <option value="0">⬇ TEKAN / Compression</option>
-                <option value="1">⬆ TARIK / Tension</option>
-            </select>
-        </div>
-        <button class="btn btn-dark w-100" onclick="sendCmd('RECAL')">↻ Kalibrasi Ulang Sensor adc</button>
+    <div class="btn-group">
+        <button id="connectBtn" class="btn btn-orange">🔍 Scan modul</button>
+        <button id="disconnectBtn" class="btn btn-dark" disabled>✕ Putus cintamu</button>
     </div>
+</div>
 
-    <div class="card">
-        <div class="card-title">CUT DURATION QS</div>
-        <div class="input-row"><label>1000 - 4000</label><input type="number" id="c1" placeholder="ms" data-cmd="C1:"></div>
-        <div class="input-row"><label>4000 - 6000</label><input type="number" id="c2" placeholder="ms" data-cmd="C2:"></div>
-        <div class="input-row"><label>6000 - 8000</label><input type="number" id="c3" placeholder="ms" data-cmd="C3:"></div>
-        <div class="input-row"><label>8k - 10k</label><input type="number" id="c4" placeholder="ms" data-cmd="C4:"></div>
-        <div class="input-row"><label>10k - 12k</label><input type="number" id="c5" placeholder="ms" data-cmd="C5:"></div>
-        <div class="input-row"><label>12k - 14k</label><input type="number" id="c6" placeholder="ms" data-cmd="C6:"></div>
-        <div class="input-row"><label>14k+ RPM</label><input type="number" id="c7" placeholder="ms" data-cmd="C7:"></div>
+<div class="card">
+    <div class="card-title">QUICK SHIFTER aktif</div>
+    <div class="input-row">
+        <label>Trigger</label>
+        <input type="number" id="targetVal" placeholder="Misal: 450" data-cmd="SETVAL">
     </div>
-
-    <div class="card">
-        <div class="card-title">PIT LIMITER</div>
-        <div class="input-row"><label>Limit RPM</label><input type="number" id="pl" placeholder="RPM" data-cmd="PL"></div>
-        <div class="input-row"><label>Cut off.</label><input type="number" id="pd" placeholder="ms" data-cmd="PD"></div>
-        <div class="input-row"><label>Rest on.</label><input type="number" id="pr" placeholder="ms" data-cmd="PR"></div>
+    <div class="input-row" style="margin-top:15px;">
+        <select id="shiftMode" style="width:100%;" data-cmd="M">
+            <option value="0">⬇ TEKAN / Compression</option>
+            <option value="1">⬆ TARIK / Tension</option>
+        </select>
     </div>
+    <button class="btn btn-dark w-100" onclick="sendCmd('RECAL')">↻ Kalibrasi Ulang Sensor adc</button>
+</div>
 
-    <div class="card">
-        <div class="card-title">TERMINAL LOG</div>
-        <div class="btn-group">
-            <button class="btn btn-dark" onclick="sendCmd('INFO')">Data loger qs</button>
-            <button class="btn btn-dark" onclick="sendCmd('PI')">Info PIT</button>
-        </div>
-        <div class="log-box" id="terminal"></div>
+<div class="card">
+    <div class="card-title">CUT DURATION QS</div>
+    <div class="input-row"><label>1000 - 4000</label><input type="number" id="c1" placeholder="ms" data-cmd="C1:"></div>
+    <div class="input-row"><label>4000 - 6000</label><input type="number" id="c2" placeholder="ms" data-cmd="C2:"></div>
+    <div class="input-row"><label>6000 - 8000</label><input type="number" id="c3" placeholder="ms" data-cmd="C3:"></div>
+    <div class="input-row"><label>8k - 10k</label>  <input type="number" id="c4" placeholder="ms" data-cmd="C4:"></div>
+    <div class="input-row"><label>10k - 12k</label> <input type="number" id="c5" placeholder="ms" data-cmd="C5:"></div>
+    <div class="input-row"><label>12k - 14k</label> <input type="number" id="c6" placeholder="ms" data-cmd="C6:"></div>
+    <div class="input-row"><label>14k+ RPM</label>  <input type="number" id="c7" placeholder="ms" data-cmd="C7:"></div>
+</div>
+
+<div class="card">
+    <div class="card-title">PIT LIMITER</div>
+    <div class="input-row"><label>Limit RPM</label><input type="number" id="pl" placeholder="RPM" data-cmd="PL"></div>
+    <div class="input-row"><label>Cut off.</label>  <input type="number" id="pd" placeholder="ms"  data-cmd="PD"></div>
+    <div class="input-row"><label>Rest on.</label>  <input type="number" id="pr" placeholder="ms"  data-cmd="PR"></div>
+</div>
+
+<div class="card">
+    <div class="card-title">TERMINAL LOG</div>
+    <div class="btn-group">
+        <button class="btn btn-dark" onclick="sendCmd('INFO')">Data loger qs</button>
+        <button class="btn btn-dark" onclick="sendCmd('PI')">Info PIT</button>
     </div>
+    <div class="log-box" id="terminal"></div>
+</div>
 
-    <script>
-        const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
-        const RX_UUID      = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"; 
-        const TX_UUID      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; 
+<script>
+const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const RX_UUID      = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+const TX_UUID      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
-        let bleDevice, rxCharacteristic, txCharacteristic;
+let bleDevice, rxCharacteristic, txCharacteristic;
+let isConnecting = false;
 
-        const connectBtn = document.getElementById('connectBtn');
-        const disconnectBtn = document.getElementById('disconnectBtn');
-        const bleState = document.getElementById('bleState');
-        const headerDot = document.getElementById('headerDot');
-        const monitorText = document.getElementById('monitorText');
-        const terminal = document.getElementById('terminal');
-        const rpmVal = document.getElementById('rpmVal');
-        const sensVal = document.getElementById('sensVal');
+const connectBtn    = document.getElementById('connectBtn');
+const disconnectBtn = document.getElementById('disconnectBtn');
+const bleState      = document.getElementById('bleState');
+const headerDot     = document.getElementById('headerDot');
+const monitorText   = document.getElementById('monitorText');
+const terminal      = document.getElementById('terminal');
+const rpmVal        = document.getElementById('rpmVal');
+const sensVal       = document.getElementById('sensVal');
+const alertErr      = document.getElementById('alertErr');
 
-        function logToTerminal(text) {
-            terminal.innerHTML += `<div>> ${text}</div>`;
-            terminal.scrollTop = terminal.scrollHeight;
-        }
+// Cek support saat load
+if (!navigator.bluetooth) {
+    alertErr.innerHTML = '❌ Web Bluetooth tidak tersedia.<br>Buka di <b>Chrome Android</b> via HTTPS — bukan di HTML editor / file lokal.';
+    alertErr.style.display = 'block';
+    connectBtn.disabled = true;
+}
 
-        function updateConnectionUI(connected, msg) {
-            if (connected) {
-                bleState.innerText = msg;
-                bleState.style.color = "var(--accent-green)";
-                headerDot.style.backgroundColor = "var(--accent-green)";
-                headerDot.style.boxShadow = "0 0 8px var(--accent-green)";
-                monitorText.innerText = "Monitoring Aktif...";
-                connectBtn.disabled = true;
-                connectBtn.classList.replace('btn-orange', 'btn-dark');
-                disconnectBtn.disabled = false;
-                disconnectBtn.classList.replace('btn-dark', 'btn-orange');
-            } else {
-                bleState.innerText = msg;
-                bleState.style.color = "var(--text-main)";
-                headerDot.style.backgroundColor = "var(--accent-red)";
-                headerDot.style.boxShadow = "0 0 8px var(--accent-red)";
-                monitorText.innerText = "Belum terhubung...";
-                rpmVal.innerText = "-";
-                sensVal.innerText = "-";
-                connectBtn.disabled = false;
-                connectBtn.classList.replace('btn-dark', 'btn-orange');
-                disconnectBtn.disabled = true;
-                disconnectBtn.classList.replace('btn-orange', 'btn-dark');
-            }
-        }
+function logToTerminal(text, cls) {
+    const d = document.createElement('div');
+    d.textContent = '> ' + text;
+    if (cls) d.className = cls;
+    terminal.appendChild(d);
+    terminal.scrollTop = terminal.scrollHeight;
+}
 
-        // FUNGSI BLUETOOTH ASLI MILIKMU (TIDAK ADA YANG DIUBAH)
-        connectBtn.addEventListener('click', async () => {
-            try {
-                updateConnectionUI(false, "Meminta akses...");
-                bleDevice = await navigator.bluetooth.requestDevice({
-                    filters: [{ name: 'ESP32_QS_Mini' }],
-                    optionalServices: [SERVICE_UUID]
-                });
+// FIX: pakai className langsung, bukan classList.replace yang bisa gagal diam-diam
+function setUI(connected, msg) {
+    bleState.innerText     = msg;
+    bleState.style.color   = connected ? 'var(--accent-green)' : 'var(--text-main)';
+    headerDot.style.backgroundColor = connected ? 'var(--accent-green)' : 'var(--accent-red)';
+    headerDot.style.boxShadow = connected ? '0 0 8px var(--accent-green)' : '0 0 8px var(--accent-red)';
+    monitorText.innerText  = connected ? 'Monitoring Aktif...' : 'Belum terhubung...';
+    monitorText.style.color = 'var(--text-main)';
 
-                bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
-                updateConnectionUI(false, "Menghubungkan...");
-                
-                const server = await bleDevice.gatt.connect();
-                const service = await server.getPrimaryService(SERVICE_UUID);
-                rxCharacteristic = await service.getCharacteristic(RX_UUID);
-                txCharacteristic = await service.getCharacteristic(TX_UUID);
+    connectBtn.disabled    = connected;
+    connectBtn.className   = connected ? 'btn btn-dark' : 'btn btn-orange';
 
-                await txCharacteristic.startNotifications();
-                txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
+    disconnectBtn.disabled = !connected;
+    disconnectBtn.className = connected ? 'btn btn-orange' : 'btn btn-dark';
 
-                updateConnectionUI(true, "Terkoneksi");
-                logToTerminal("Bluetooth Berhasil Terkoneksi!");
-            } catch (error) {
-                console.error(error);
-                updateConnectionUI(false, "Gagal koneksi");
-            }
+    if (!connected) {
+        rpmVal.innerText = '-';
+        rpmVal.style.color = 'var(--accent-green)';
+        sensVal.innerText = '-';
+        isConnecting = false;
+    }
+}
+
+// FIX: filter diganti acceptAllDevices agar semua device BT muncul
+// (tidak tergantung nama persis di firmware)
+connectBtn.addEventListener('click', async () => {
+    if (isConnecting) return;
+    isConnecting = true;
+    alertErr.style.display = 'none';
+
+    try {
+        connectBtn.disabled = true;
+        connectBtn.textContent = '⏳ Mencari...';
+        bleState.innerText = 'Meminta akses...';
+
+        bleDevice = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,          // ← SEMUA device BT muncul, pilih manual
+            optionalServices: [SERVICE_UUID]
         });
 
-        disconnectBtn.addEventListener('click', () => {
-            if (!bleDevice) return;
-            if (bleDevice.gatt.connected) bleDevice.gatt.disconnect();
-        });
+        bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+        bleState.innerText = 'Menghubungkan...';
 
-        function onDisconnected() {
-            updateConnectionUI(false, "Terputus");
-            logToTerminal("Perangkat terputus.");
+        const server  = await bleDevice.gatt.connect();
+        const service = await server.getPrimaryService(SERVICE_UUID);
+        rxCharacteristic = await service.getCharacteristic(RX_UUID);
+        txCharacteristic = await service.getCharacteristic(TX_UUID);
+
+        await txCharacteristic.startNotifications();
+        txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
+
+        setUI(true, 'Terkoneksi ✓');
+        logToTerminal('Bluetooth Berhasil Terkoneksi!');
+
+    } catch (error) {
+        console.error(error);
+        const msg = error.message || String(error);
+        if (msg.includes('cancelled') || msg.includes('chosen')) {
+            setUI(false, 'Dibatalkan');
+        } else {
+            alertErr.textContent = '❌ ' + msg;
+            alertErr.style.display = 'block';
+            setUI(false, 'Gagal koneksi');
+            logToTerminal('Error: ' + msg, 'log-err');
         }
+    }
+});
 
-        // ========================================================
-        // LOGIKA AUTO-TYPE DENGAN PENAMBAHAN KALI 4 (UNTUK KIRIM)
-        // ========================================================
-        let debounceTimers = {};
+disconnectBtn.addEventListener('click', () => {
+    if (bleDevice && bleDevice.gatt.connected) bleDevice.gatt.disconnect();
+});
 
-        document.querySelectorAll('input[data-cmd], select[data-cmd]').forEach(input => {
-            input.addEventListener('input', (e) => {
-                const el = e.target;
-                const cmdPrefix = el.getAttribute('data-cmd');
-                
-                clearTimeout(debounceTimers[el.id]);
-                el.style.color = "var(--accent-red)";
-                
-                debounceTimers[el.id] = setTimeout(() => {
-                    let finalCmd = cmdPrefix + el.value;
-                    
-                    // JIKA YANG DIKIRIM ADALAH THRESHOLD ADC, KALIKAN 4 DIAM-DIAM
-                    if (el.id === 'targetVal' && el.value !== "") {
-                        let userVal = parseInt(el.value);
-                        let rawVal = userVal * 4; 
-                        finalCmd = "SETVAL" + rawVal;
-                    }
-                    
-                    sendSetting(finalCmd, el.id);
-                }, 800); 
-            });
-        });
+function onDisconnected() {
+    setUI(false, 'Terputus');
+    logToTerminal('Perangkat terputus.', 'log-err');
+}
 
-        async function sendSetting(command, inputId) {
-            const inputElement = document.getElementById(inputId);
-            if (inputElement && inputElement.value !== "") {
-                inputElement.style.color = "var(--accent-red)";
-                await sendCmd(command);
+// AUTO-SEND dengan debounce 800ms
+let debounceTimers = {};
+document.querySelectorAll('input[data-cmd], select[data-cmd]').forEach(el => {
+    el.addEventListener('input', () => {
+        clearTimeout(debounceTimers[el.id]);
+        el.style.color = 'var(--accent-red)';
+        debounceTimers[el.id] = setTimeout(() => {
+            let cmd = el.getAttribute('data-cmd') + el.value;
+            if (el.id === 'targetVal' && el.value !== '') {
+                cmd = 'SETVAL' + (parseInt(el.value) * 4);
             }
+            sendCmd(cmd).then(() => { el.style.color = '#fff'; });
+        }, 800);
+    });
+});
+
+// PARSING NOTIF DARI ESP32
+const setVal = (id, v) => { const e = document.getElementById(id); if(e){ e.value=v; e.style.color='#fff'; } };
+
+function handleNotifications(event) {
+    const text = new TextDecoder('utf-8').decode(event.target.value).trim();
+
+    if (text.includes('RPM:') && text.includes('Sens:')) {
+        const rpmM  = text.match(/RPM:\s*(\d+)/);
+        const sensM = text.match(/Sens:\s*(\d+)/);
+        if (rpmM)  rpmVal.innerText = rpmM[1];
+        if (sensM) {
+            const div = Math.round(parseInt(sensM[1]) / 4);
+            sensVal.innerText = div;
+            const pct = Math.max(0, Math.min((div / 1000) * 100, 100));
+            document.getElementById('qsPointer').style.left = pct + '%';
         }
+        if (text.includes('[PIT ON]')) {
+            rpmVal.style.color = 'var(--accent-red)';
+            monitorText.innerText = '⚠ PIT LIMITER AKTIF!';
+            monitorText.style.color = 'var(--accent-red)';
+        } else {
+            rpmVal.style.color = 'var(--accent-green)';
+            monitorText.innerText = 'Monitoring Aktif...';
+            monitorText.style.color = 'var(--text-main)';
+        }
+    }
+    else if (text.includes('=== SETTING PERMANEN TERSIMPAN ===')) {
+        document.querySelectorAll('input,select').forEach(e => { if(e.value!=='') e.style.color='#fff'; });
+        logToTerminal('INFO: Data Tersimpan di EEPROM.');
+    }
+    else if (text.includes('Threshold :'))  setVal('targetVal', Math.round(parseInt(text.split(':')[1].trim()) / 4));
+    else if (text.includes('ShiftMode :'))  setVal('shiftMode', text.split(':')[1].trim());
+    else if (text.includes('Pit Limit :'))  setVal('pl', text.split(':')[1].trim());
+    else if (text.includes('Pit Cut :'))    setVal('pd', text.split(':')[1].trim());
+    else if (text.includes('Pit Rest :'))   setVal('pr', text.split(':')[1].trim());
+    else if (text.includes('C1:1k-4k'))     setVal('c1', text.split(':')[2].trim());
+    else if (text.includes('C2:4k-6k'))     setVal('c2', text.split(':')[2].trim());
+    else if (text.includes('C3:6k-8k'))     setVal('c3', text.split(':')[2].trim());
+    else if (text.includes('C4:8k-10k'))    setVal('c4', text.split(':')[2].trim());
+    else if (text.includes('C5:10k-12k'))   setVal('c5', text.split(':')[2].trim());
+    else if (text.includes('C6:12k-14k'))   setVal('c6', text.split(':')[2].trim());
+    else if (text.includes('C7:14k+'))      setVal('c7', text.split(':')[2].trim());
+    else logToTerminal(text);
+}
 
-        // ========================================================
-        // LOGIKA PARSING DENGAN PENAMBAHAN BAGI 4 (UNTUK TERIMA)
-        // ========================================================
-        const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-
-        function handleNotifications(event) {
-            let value = event.target.value;
-            let decoder = new TextDecoder('utf-8');
-            let text = decoder.decode(value).trim();
-
-            if (text.includes("RPM:") && text.includes("Sens:")) {
-                let rpmMatch = text.match(/RPM:\s*(\d+)/);
-                let sensMatch = text.match(/Sens:\s*(\d+)/);
-                
-                if (rpmMatch) rpmVal.innerText = rpmMatch[1];
-                
-                // PEMBAGIAN 4 UNTUK SENSOR DAN ANIMASI JARUM
-                if (sensMatch) {
-                    let rawSens = parseInt(sensMatch[1]);
-                    let dividedSens = Math.round(rawSens / 4);
-                    sensVal.innerText = dividedSens;
-                    
-                    let qsPointer = document.getElementById('qsPointer');
-                    if(qsPointer) {
-                        let barPercentage = (dividedSens / 1000) * 100;
-                        barPercentage = Math.max(0, Math.min(barPercentage, 100)); 
-                        qsPointer.style.left = barPercentage + "%";
-                    }
-                }
-                
-                if (text.includes("[PIT ON]")) {
-                    rpmVal.style.color = "var(--accent-red)";
-                    monitorText.innerText = "⚠ PIT LIMITER AKTIF!";
-                    monitorText.style.color = "var(--accent-red)";
-                } else {
-                    rpmVal.style.color = "var(--accent-green)";
-                    monitorText.innerText = "Monitoring Aktif...";
-                    monitorText.style.color = "var(--text-main)";
-                }
-            } 
-            else if (text.includes("=== SETTING PERMANEN TERSIMPAN ===")) {
-                document.querySelectorAll('input, select').forEach(el => {
-                    if (el.value !== "") el.style.color = "#fff";
-                });
-                logToTerminal("INFO: Data Tersimpan di EEPROM.");
-            } 
-            
-            // PEMBAGIAN 4 UNTUK DATA THRESHOLD SAAT TOMBOL INFO DIPENCET
-            else if (text.includes("Threshold :")) {
-                let rawThreshold = parseInt(text.split(":")[1].trim());
-                setVal('targetVal', Math.round(rawThreshold / 4));
-            }
-            
-            else if (text.includes("ShiftMode :")) setVal('shiftMode', text.split(":")[1].trim());
-            else if (text.inc
+async function sendCmd(cmd) {
+    if (!rxCharacteristic) { logToTerminal('Belum konek!', 'log-err'); return; }
+    try {
+        await rxCharacteristic.writeValue(new TextEncoder().encode(cmd));
+        logToTerminal(cmd, 'log-tx');
+    } catch(e) {
+        logToTerminal('Gagal kirim: ' + cmd, 'log-err');
+    }
+}
+</script>
+</body>
+    </html>
+    
