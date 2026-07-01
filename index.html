@@ -50,7 +50,6 @@
             font-size: 0.85rem; margin-bottom: 20px; line-height: 1.4;
             font-family: 'JetBrains Mono', monospace;
         }
-        /* ALERT ERROR */
         .alert-err {
             background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.4);
             color: #fca5a5; padding: 12px; border-radius: 8px;
@@ -118,6 +117,38 @@
         }
         .log-tx { color: #64748b; }
         .log-err { color: var(--accent-red); }
+
+        /* RPM CORRECTION */
+        .rpm-corr-row {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .rpm-corr-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem; color: var(--text-main); flex: 1;
+        }
+        .rpm-corr-controls {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .btn-adj {
+            background: var(--bg-input); color: #fff;
+            border: 1px solid var(--border-color);
+            width: 38px; height: 38px; border-radius: 8px;
+            font-size: 1.2rem; cursor: pointer; flex: none;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .btn-adj:active { background: #1e293b; }
+        #rpmMult {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem; font-weight: bold;
+            color: var(--accent-green); min-width: 45px; text-align: center;
+        }
+        .rpm-corr-hint {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem; color: var(--text-main);
+            margin-top: 10px; text-align: center;
+            padding-top: 10px; border-top: 1px dashed var(--border-color);
+        }
     </style>
 </head>
 <body>
@@ -133,8 +164,18 @@
 
 <div class="warning-box">⚠ jare kasdi nak butuhmu pasir aku yo butuh</div>
 
-<!-- muncul kalau error / tidak support -->
 <div class="alert-err" id="alertErr"></div>
+
+<div class="card">
+    <div class="card-title">KONEKSI MODUL</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text-main);margin-bottom:15px;">
+        Status: <span id="bleState">Belum terhubung koyo cintamu</span>
+    </div>
+    <div class="btn-group">
+        <button id="connectBtn" class="btn btn-orange">🔍 Scan modul</button>
+        <button id="disconnectBtn" class="btn btn-dark" disabled>✕ Putus cintamu</button>
+    </div>
+</div>
 
 <div class="card">
     <div class="card-title">MONITOR</div>
@@ -165,14 +206,19 @@
     </div>
 </div>
 
+<!-- RPM CORRECTION CARD -->
 <div class="card">
-    <div class="card-title">KONEKSI MODUL</div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text-main);margin-bottom:15px;">
-        Status: <span id="bleState">Belum terhubung koyo cintamu</span>
+    <div class="card-title">RPM CORRECTION</div>
+    <div class="rpm-corr-row">
+        <div class="rpm-corr-label">Multiplier (×)</div>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustRpm(-0.1)">−</button>
+            <span id="rpmMult">2.0</span>
+            <button class="btn-adj" onclick="adjustRpm(0.1)">+</button>
+        </div>
     </div>
-    <div class="btn-group">
-        <button id="connectBtn" class="btn btn-orange">🔍 Scan modul</button>
-        <button id="disconnectBtn" class="btn btn-dark" disabled>✕ Putus cintamu</button>
+    <div class="rpm-corr-hint">
+        Tap − / + untuk koreksi ±0.1 × per tap &nbsp;|&nbsp; Default: ×2.0
     </div>
 </div>
 
@@ -193,13 +239,13 @@
 
 <div class="card">
     <div class="card-title">CUT DURATION QS</div>
-    <div class="input-row"><label>1000 - 4000</label><input type="number" id="c1" placeholder="ms" data-cmd="C1:"></div>
-    <div class="input-row"><label>4000 - 6000</label><input type="number" id="c2" placeholder="ms" data-cmd="C2:"></div>
-    <div class="input-row"><label>6000 - 8000</label><input type="number" id="c3" placeholder="ms" data-cmd="C3:"></div>
-    <div class="input-row"><label>8000 - 10000</label>  <input type="number" id="c4" placeholder="ms" data-cmd="C4:"></div>
-    <div class="input-row"><label>10000 - 12000</label> <input type="number" id="c5" placeholder="ms" data-cmd="C5:"></div>
-    <div class="input-row"><label>12000 - 14000</label> <input type="number" id="c6" placeholder="ms" data-cmd="C6:"></div>
-    <div class="input-row"><label>14k+ RPM</label>  <input type="number" id="c7" placeholder="ms" data-cmd="C7:"></div>
+    <div class="input-row"><label>1000 - 4000</label>  <input type="number" id="c1" placeholder="ms" data-cmd="C1:"></div>
+    <div class="input-row"><label>4000 - 6000</label>  <input type="number" id="c2" placeholder="ms" data-cmd="C2:"></div>
+    <div class="input-row"><label>6000 - 8000</label>  <input type="number" id="c3" placeholder="ms" data-cmd="C3:"></div>
+    <div class="input-row"><label>8000 - 10000</label> <input type="number" id="c4" placeholder="ms" data-cmd="C4:"></div>
+    <div class="input-row"><label>10000 - 12000</label><input type="number" id="c5" placeholder="ms" data-cmd="C5:"></div>
+    <div class="input-row"><label>12000 - 14000</label><input type="number" id="c6" placeholder="ms" data-cmd="C6:"></div>
+    <div class="input-row"><label>14k+ RPM</label>     <input type="number" id="c7" placeholder="ms" data-cmd="C7:"></div>
 </div>
 
 <div class="card">
@@ -226,6 +272,16 @@ const TX_UUID      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 let bleDevice, rxCharacteristic, txCharacteristic;
 let isConnecting = false;
 
+// RPM CORRECTION — default x2, bisa diubah lewat tombol +/-
+let rpmMultiplier = 2.0;
+
+function adjustRpm(delta) {
+    rpmMultiplier = Math.round((rpmMultiplier + delta) * 10) / 10;
+    if (rpmMultiplier < 0.1) rpmMultiplier = 0.1;
+    if (rpmMultiplier > 9.9) rpmMultiplier = 9.9;
+    document.getElementById('rpmMult').textContent = rpmMultiplier.toFixed(1);
+}
+
 const connectBtn    = document.getElementById('connectBtn');
 const disconnectBtn = document.getElementById('disconnectBtn');
 const bleState      = document.getElementById('bleState');
@@ -236,7 +292,6 @@ const rpmVal        = document.getElementById('rpmVal');
 const sensVal       = document.getElementById('sensVal');
 const alertErr      = document.getElementById('alertErr');
 
-// Cek support saat load
 if (!navigator.bluetooth) {
     alertErr.innerHTML = '❌ Web Bluetooth tidak tersedia.<br>Buka di <b>Chrome Android</b> via HTTPS — bukan di HTML editor / file lokal.';
     alertErr.style.display = 'block';
@@ -251,7 +306,6 @@ function logToTerminal(text, cls) {
     terminal.scrollTop = terminal.scrollHeight;
 }
 
-// FIX: pakai className langsung, bukan classList.replace yang bisa gagal diam-diam
 function setUI(connected, msg) {
     bleState.innerText     = msg;
     bleState.style.color   = connected ? 'var(--accent-green)' : 'var(--text-main)';
@@ -259,13 +313,10 @@ function setUI(connected, msg) {
     headerDot.style.boxShadow = connected ? '0 0 8px var(--accent-green)' : '0 0 8px var(--accent-red)';
     monitorText.innerText  = connected ? 'Monitoring Aktif...' : 'Belum terhubung...';
     monitorText.style.color = 'var(--text-main)';
-
     connectBtn.disabled    = connected;
     connectBtn.className   = connected ? 'btn btn-dark' : 'btn btn-orange';
-
     disconnectBtn.disabled = !connected;
     disconnectBtn.className = connected ? 'btn btn-orange' : 'btn btn-dark';
-
     if (!connected) {
         rpmVal.innerText = '-';
         rpmVal.style.color = 'var(--accent-green)';
@@ -274,20 +325,17 @@ function setUI(connected, msg) {
     }
 }
 
-// FIX: filter diganti acceptAllDevices agar semua device BT muncul
-// (tidak tergantung nama persis di firmware)
 connectBtn.addEventListener('click', async () => {
     if (isConnecting) return;
     isConnecting = true;
     alertErr.style.display = 'none';
-
     try {
         connectBtn.disabled = true;
         connectBtn.textContent = '⏳ Mencari...';
         bleState.innerText = 'Meminta akses...';
 
         bleDevice = await navigator.bluetooth.requestDevice({
-            acceptAllDevices: true,          // ← SEMUA device BT muncul, pilih manual
+            acceptAllDevices: true,
             optionalServices: [SERVICE_UUID]
         });
 
@@ -303,11 +351,12 @@ connectBtn.addEventListener('click', async () => {
         txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
 
         setUI(true, 'Terkoneksi ✓');
-logToTerminal('Bluetooth Berhasil Terkoneksi!');
+        logToTerminal('Bluetooth Berhasil Terkoneksi!');
 
-// Auto-request semua setting setelah konek
-setTimeout(() => sendCmd('INFO'), 600);   // ambil data QS + cut time
-setTimeout(() => sendCmd('PI'),   1200);  // ambil data Pit Limiter
+        // Auto-request semua setting setelah konek
+        setTimeout(() => sendCmd('INFO'), 600);
+        setTimeout(() => sendCmd('PI'),   1200);
+
     } catch (error) {
         console.error(error);
         const msg = error.message || String(error);
@@ -331,7 +380,6 @@ function onDisconnected() {
     logToTerminal('Perangkat terputus.', 'log-err');
 }
 
-// AUTO-SEND dengan debounce 800ms
 let debounceTimers = {};
 document.querySelectorAll('input[data-cmd], select[data-cmd]').forEach(el => {
     el.addEventListener('input', () => {
@@ -347,7 +395,6 @@ document.querySelectorAll('input[data-cmd], select[data-cmd]').forEach(el => {
     });
 });
 
-// PARSING NOTIF DARI ESP32
 const setVal = (id, v) => { const e = document.getElementById(id); if(e){ e.value=v; e.style.color='#fff'; } };
 
 function handleNotifications(event) {
@@ -356,7 +403,10 @@ function handleNotifications(event) {
     if (text.includes('RPM:') && text.includes('Sens:')) {
         const rpmM  = text.match(/RPM:\s*(\d+)/);
         const sensM = text.match(/Sens:\s*(\d+)/);
-        if (rpmM)  rpmVal.innerText = rpmM[1];
+
+        // Kalikan RPM raw dengan multiplier
+        if (rpmM) rpmVal.innerText = Math.round(parseInt(rpmM[1]) * rpmMultiplier);
+
         if (sensM) {
             const div = Math.round(parseInt(sensM[1]) / 4);
             sensVal.innerText = div;
@@ -385,23 +435,4 @@ function handleNotifications(event) {
     else if (text.includes('C1:1k-4k'))     setVal('c1', text.split(':')[2].trim());
     else if (text.includes('C2:4k-6k'))     setVal('c2', text.split(':')[2].trim());
     else if (text.includes('C3:6k-8k'))     setVal('c3', text.split(':')[2].trim());
-    else if (text.includes('C4:8k-10k'))    setVal('c4', text.split(':')[2].trim());
-    else if (text.includes('C5:10k-12k'))   setVal('c5', text.split(':')[2].trim());
-    else if (text.includes('C6:12k-14k'))   setVal('c6', text.split(':')[2].trim());
-    else if (text.includes('C7:14k+'))      setVal('c7', text.split(':')[2].trim());
-    else logToTerminal(text);
-}
-
-async function sendCmd(cmd) {
-    if (!rxCharacteristic) { logToTerminal('Belum konek!', 'log-err'); return; }
-    try {
-        await rxCharacteristic.writeValue(new TextEncoder().encode(cmd));
-        logToTerminal(cmd, 'log-tx');
-    } catch(e) {
-        logToTerminal('Gagal kirim: ' + cmd, 'log-err');
-    }
-}
-</script>
-</body>
-    </html>
-    
+    else if (text.includes('C4:8k-10k'))    setVal('c4', text.s
