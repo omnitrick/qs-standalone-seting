@@ -170,8 +170,9 @@ const TX_UUID      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
 let bleDevice, rxCharacteristic, txCharacteristic;
 let isConnecting = false;
+let receiveBuffer = ""; // Penampung data agar tidak terpotong
 
-// RPM CORRECTION — try-catch biar tidak crash kalau localStorage tidak tersedia
+// RPM CORRECTION
 let rpmMultiplier = 2.0;
 try { rpmMultiplier = parseFloat(localStorage.getItem('rpmMult') || '2.0'); } catch(e) {}
 document.getElementById('rpmMult').textContent = rpmMultiplier.toFixed(1);
@@ -224,6 +225,7 @@ function setUI(connected, msg) {
         rpmVal.style.color = 'var(--accent-green)';
         sensVal.innerText = '-';
         isConnecting = false;
+        receiveBuffer = ""; // Reset buffer saat diskonek
     }
 }
 
@@ -297,26 +299,17 @@ document.querySelectorAll('input[data-cmd], select[data-cmd]').forEach(el => {
 
 const setVal = (id, v) => { const e = document.getElementById(id); if(e){ e.value=v; e.style.color='#fff'; } };
 
-// Tambahkan variabel ini di luar fungsi (misal di bawah let debounceTimers = {};)
-let receiveBuffer = "";
-
 function handleNotifications(event) {
-    // 1. Terima potongan data dan masukkan ke penampung (buffer)
     const chunk = new TextDecoder('utf-8').decode(event.target.value);
     receiveBuffer += chunk;
-
-    // 2. Pecah data berdasarkan karakter enter (\n) yang dikirim ESP32
-    let lines = receiveBuffer.split('\n');
     
-    // 3. Simpan elemen terakhir (yang mungkin teksnya belum utuh) kembali ke buffer
-    receiveBuffer = lines.pop();
+    let lines = receiveBuffer.split('\n');
+    receiveBuffer = lines.pop(); // Simpan sisa string yang belum ada 'enter' nya
 
-    // 4. Proses hanya baris yang sudah utuh
     for (let text of lines) {
         text = text.trim();
-        if (!text) continue; // Abaikan baris kosong
+        if (!text) continue;
 
-        // Mulai logika parsing data
         if (text.includes('RPM:') && text.includes('Sens:')) {
             const rpmM  = text.match(/RPM:\s*(\d+)/);
             const sensM = text.match(/Sens:\s*(\d+)/);
@@ -337,11 +330,10 @@ function handleNotifications(event) {
                 monitorText.style.color = 'var(--text-main)';
             }
         }
-                else if (text.includes('=== SETTING PERMANEN TERSIMPAN ===')) {
+        else if (text.includes('=== SETTING PERMANEN TERSIMPAN ===')) {
             document.querySelectorAll('input,select').forEach(e => { if(e.value!=='') e.style.color='#fff'; });
             logToTerminal('INFO: Data Tersimpan.');
         }
-        // PERBAIKAN: Tambahkan parseInt() di semua setVal agar HTML tidak menolak string seperti "ms"
         else if (text.includes('Threshold :'))  setVal('targetVal', Math.round(parseInt(text.split(':')[1]) / 4));
         else if (text.includes('ShiftMode :'))  setVal('shiftMode', parseInt(text.split(':')[1]));
         else if (text.includes('Pit Limit :'))  setVal('pl', parseInt(text.split(':')[1]));
@@ -355,9 +347,18 @@ function handleNotifications(event) {
         else if (text.includes('C6:12k-14k'))   setVal('c6', parseInt(text.split(':')[2]));
         else if (text.includes('C7:14k+'))      setVal('c7', parseInt(text.split(':')[2]));
         else logToTerminal(text);
-
+    }
 }
 
+async function sendCmd(cmd) {
+    if (!rxCharacteristic) { logToTerminal('Belum konek!', 'log-err'); return; }
+    try {
+        await rxCharacteristic.writeValue(new TextEncoder().encode(cmd));
+        logToTerminal(cmd, 'log-tx');
+    } catch(e) {
+        logToTerminal('Gagal kirim: ' + cmd, 'log-err');
+    }
+}
 </script>
 </body>
 </html>
