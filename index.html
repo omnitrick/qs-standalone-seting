@@ -297,57 +297,67 @@ document.querySelectorAll('input[data-cmd], select[data-cmd]').forEach(el => {
 
 const setVal = (id, v) => { const e = document.getElementById(id); if(e){ e.value=v; e.style.color='#fff'; } };
 
+// Tambahkan variabel ini di luar fungsi (misal di bawah let debounceTimers = {};)
+let receiveBuffer = "";
+
 function handleNotifications(event) {
-    const text = new TextDecoder('utf-8').decode(event.target.value).trim();
+    // 1. Terima potongan data dan masukkan ke penampung (buffer)
+    const chunk = new TextDecoder('utf-8').decode(event.target.value);
+    receiveBuffer += chunk;
 
-    if (text.includes('RPM:') && text.includes('Sens:')) {
-        const rpmM  = text.match(/RPM:\s*(\d+)/);
-        const sensM = text.match(/Sens:\s*(\d+)/);
-        if (rpmM) rpmVal.innerText = Math.round(parseInt(rpmM[1]) * rpmMultiplier);
-        if (sensM) {
-            const div = Math.round(parseInt(sensM[1]) / 4);
-            sensVal.innerText = div;
-            const pct = Math.max(0, Math.min((div / 1000) * 100, 100));
-            document.getElementById('qsPointer').style.left = pct + '%';
+    // 2. Pecah data berdasarkan karakter enter (\n) yang dikirim ESP32
+    let lines = receiveBuffer.split('\n');
+    
+    // 3. Simpan elemen terakhir (yang mungkin teksnya belum utuh) kembali ke buffer
+    receiveBuffer = lines.pop();
+
+    // 4. Proses hanya baris yang sudah utuh
+    for (let text of lines) {
+        text = text.trim();
+        if (!text) continue; // Abaikan baris kosong
+
+        // Mulai logika parsing data
+        if (text.includes('RPM:') && text.includes('Sens:')) {
+            const rpmM  = text.match(/RPM:\s*(\d+)/);
+            const sensM = text.match(/Sens:\s*(\d+)/);
+            if (rpmM) rpmVal.innerText = Math.round(parseInt(rpmM[1]) * rpmMultiplier);
+            if (sensM) {
+                const div = Math.round(parseInt(sensM[1]) / 4);
+                sensVal.innerText = div;
+                const pct = Math.max(0, Math.min((div / 1000) * 100, 100));
+                document.getElementById('qsPointer').style.left = pct + '%';
+            }
+            if (text.includes('[PIT ON]')) {
+                rpmVal.style.color = 'var(--accent-red)';
+                monitorText.innerText = '⚠ PIT LIMITER AKTIF!';
+                monitorText.style.color = 'var(--accent-red)';
+            } else {
+                rpmVal.style.color = 'var(--accent-green)';
+                monitorText.innerText = 'Monitoring Aktif...';
+                monitorText.style.color = 'var(--text-main)';
+            }
         }
-        if (text.includes('[PIT ON]')) {
-            rpmVal.style.color = 'var(--accent-red)';
-            monitorText.innerText = '⚠ PIT LIMITER AKTIF!';
-            monitorText.style.color = 'var(--accent-red)';
-        } else {
-            rpmVal.style.color = 'var(--accent-green)';
-            monitorText.innerText = 'Monitoring Aktif...';
-            monitorText.style.color = 'var(--text-main)';
+        else if (text.includes('=== SETTING PERMANEN TERSIMPAN ===')) {
+            document.querySelectorAll('input,select').forEach(e => { if(e.value!=='') e.style.color='#fff'; });
+            logToTerminal('INFO: Data Tersimpan.');
         }
+        // Pastikan kata kunci di text.includes persis dengan yang dikirim ESP32
+        else if (text.includes('Threshold :'))  setVal('targetVal', Math.round(parseInt(text.split(':')[1].trim()) / 4));
+        else if (text.includes('ShiftMode :'))  setVal('shiftMode', text.split(':')[1].trim());
+        else if (text.includes('Pit Limit :'))  setVal('pl', text.split(':')[1].trim());
+        else if (text.includes('Pit Cut'))      setVal('pd', text.split(':')[1].trim()); // Diperbaiki: hanya mencari kata 'Pit Cut'
+        else if (text.includes('Pit Rest'))     setVal('pr', text.split(':')[1].trim()); // Diperbaiki
+        else if (text.includes('C1:1k-4k'))     setVal('c1', text.split(':')[2].trim());
+        else if (text.includes('C2:4k-6k'))     setVal('c2', text.split(':')[2].trim());
+        else if (text.includes('C3:6k-8k'))     setVal('c3', text.split(':')[2].trim());
+        else if (text.includes('C4:8k-10k'))    setVal('c4', text.split(':')[2].trim());
+        else if (text.includes('C5:10k-12k'))   setVal('c5', text.split(':')[2].trim());
+        else if (text.includes('C6:12k-14k'))   setVal('c6', text.split(':')[2].trim());
+        else if (text.includes('C7:14k+'))      setVal('c7', text.split(':')[2].trim());
+        else logToTerminal(text);
     }
-    else if (text.includes('=== SETTING PERMANEN TERSIMPAN ===')) {
-        document.querySelectorAll('input,select').forEach(e => { if(e.value!=='') e.style.color='#fff'; });
-        logToTerminal('INFO: Data Tersimpan.');
-    }
-    else if (text.includes('Threshold :'))  setVal('targetVal', Math.round(parseInt(text.split(':')[1].trim()) / 4));
-    else if (text.includes('ShiftMode :'))  setVal('shiftMode', text.split(':')[1].trim());
-    else if (text.includes('Pit Limit :'))  setVal('pl', text.split(':')[1].trim());
-    else if (text.includes('Pit Cut :'))    setVal('pd', text.split(':')[1].trim());
-    else if (text.includes('Pit Rest :'))   setVal('pr', text.split(':')[1].trim());
-    else if (text.includes('C1:1k-4k'))     setVal('c1', text.split(':')[2].trim());
-    else if (text.includes('C2:4k-6k'))     setVal('c2', text.split(':')[2].trim());
-    else if (text.includes('C3:6k-8k'))     setVal('c3', text.split(':')[2].trim());
-    else if (text.includes('C4:8k-10k'))    setVal('c4', text.split(':')[2].trim());
-    else if (text.includes('C5:10k-12k'))   setVal('c5', text.split(':')[2].trim());
-    else if (text.includes('C6:12k-14k'))   setVal('c6', text.split(':')[2].trim());
-    else if (text.includes('C7:14k+'))      setVal('c7', text.split(':')[2].trim());
-    else logToTerminal(text);
 }
 
-async function sendCmd(cmd) {
-    if (!rxCharacteristic) { logToTerminal('Belum konek!', 'log-err'); return; }
-    try {
-        await rxCharacteristic.writeValue(new TextEncoder().encode(cmd));
-        logToTerminal(cmd, 'log-tx');
-    } catch(e) {
-        logToTerminal('Gagal kirim: ' + cmd, 'log-err');
-    }
-}
 </script>
 </body>
 </html>
