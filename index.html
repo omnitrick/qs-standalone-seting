@@ -97,8 +97,8 @@
                 </div>
             </div>
             <div style="display:flex;justify-content:space-between;margin-top:8px;color:#777;font-size:0.65rem;font-family:'JetBrains Mono',monospace;">
-                <span>0</span><span>200</span><span>400</span><span>600</span><span>800</span><span>1k</span>
-            </div>
+    <span>0</span><span>800</span><span>1.6k</span><span>2.4k</span><span>3.2k</span><span>4k</span>
+</div>
         </div>
         <div class="monitor-status" id="monitorText">Belum terhubung...</div>
     </div>
@@ -124,11 +124,11 @@
     <div class="card-title">QUICK SHIFTER aktif</div>
     <div class="input-row">
         <label>Trigger</label>
-        <div class="rpm-corr-controls">
-            <button class="btn-adj" onclick="adjustVal('targetVal', -1, 610)">−</button>
-            <input type="number" id="targetVal" placeholder="610" data-cmd="T" style="width: 70px;">
-            <button class="btn-adj" onclick="adjustVal('targetVal', 1, 610)">+</button>
-        </div>
+<div class="rpm-corr-controls">
+    <button class="btn-adj" onclick="adjustVal('targetVal', -10, 2400)">−</button>
+    <input type="number" id="targetVal" placeholder="2400" data-cmd="T" style="width: 70px;">
+    <button class="btn-adj" onclick="adjustVal('targetVal', 10, 2400)">+</button>
+</div>
     </div>
     <div class="input-row" style="margin-top:15px;">
         <select id="shiftMode" style="width:100%;" data-cmd="M">
@@ -399,11 +399,12 @@ function handleNotifications(event) {
             const sensM = text.match(/Sens:\s*(\d+)/);
             if (rpmM) rpmVal.innerText = Math.round(parseInt(rpmM[1]) * rpmMultiplier);
             if (sensM) {
-                const div = Math.round(parseInt(sensM[1]) / 4);
-                sensVal.innerText = div;
-                const pct = Math.max(0, Math.min((div / 1000) * 100, 100));
-                document.getElementById('qsPointer').style.left = pct + '%';
-            }
+    const rawADC = parseInt(sensM[1]);
+    sensVal.innerText = rawADC;
+    // Skala pointer disesuaikan ke max 4095
+    const pct = Math.max(0, Math.min((rawADC / 4095) * 100, 100));
+    document.getElementById('qsPointer').style.left = pct + '%';
+} 
             continue;
         }
 
@@ -431,9 +432,10 @@ function handleNotifications(event) {
                     'Cut 8k-10k': 'c4', 'Cut 10k-12k': 'c5', 'Cut 12k-14k': 'c6', 'Cut 14k+': 'c7'
                 };
                 // Firmware v5 simpan threshold dalam skala mentah ADC (x4), HTML pakai skala tampilan (÷4)
-                if (label === 'Threshold') val = Math.round(val / 4);
-                if (map[label]) setVal(map[label], val);
-            }
+                    // Langsung gunakan nilai asli tanpa perlu dibagi
+    if (map[label]) setVal(map[label], val);
+}
+
             continue;
         }
     }
