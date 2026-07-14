@@ -12,11 +12,14 @@
             --accent-red: #ef4444; --accent-green: #10b981; --border-color: #1e293b;
         }
         body { font-family: 'Roboto', sans-serif; background-color: var(--bg-main); color: var(--text-light); margin: 0; padding: 15px; padding-bottom: 40px; }
-        .app-header { display: flex; align-items: center; padding: 10px 0 20px 0; border-bottom: 2px solid var(--accent-orange); margin-bottom: 20px; }
-        .app-icon { background: var(--accent-orange); color: #fff; width: 45px; height: 45px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; margin-right: 15px; }
-        .app-title h1 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; }
-        .app-title p { margin: 2px 0 0 0; font-size: 0.75rem; color: var(--text-main); font-family: 'JetBrains Mono', monospace;}
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; background-color: var(--accent-red); margin-left: auto; box-shadow: 0 0 8px var(--accent-red); transition: all 0.3s; }
+        
+        /* HEADER BARU: Lebih ringkas dan memuat tombol koneksi */
+        .app-header { display: flex; flex-direction: column; padding: 10px 0 20px 0; border-bottom: 2px solid var(--accent-orange); margin-bottom: 20px; gap: 15px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .app-title h1 { margin: 0; font-size: 1.3rem; letter-spacing: 1px; color: #fff; }
+        .header-status { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-main); display: flex; align-items: center; gap: 10px; text-align: right; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; background-color: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); transition: all 0.3s; flex-shrink: 0; }
+        
         .warning-box { background: rgba(100,116,139,0.1); border: 1px solid rgba(100,116,139,0.3); color: #94a3b8; padding: 15px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 20px; line-height: 1.4; font-family: 'JetBrains Mono', monospace; }
         .alert-err { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; padding: 12px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 15px; font-family: 'JetBrains Mono', monospace; display: none; line-height: 1.5; }
         .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
@@ -29,7 +32,7 @@
         .monitor-label { font-size: 0.75rem; color: var(--text-main); font-family: 'JetBrains Mono', monospace; margin-bottom: 5px; }
         .monitor-value { font-family: 'JetBrains Mono', monospace; font-size: 2.8rem; font-weight: bold; color: var(--accent-green); text-shadow: 0 0 10px rgba(46,213,115,0.2); transition: color 0.3s; }
         .monitor-status { font-size: 0.8rem; color: var(--text-main); font-family: 'JetBrains Mono', monospace; text-align: left; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-color); transition: color 0.3s; }
-        .btn-group { display: flex; gap: 10px; }
+        .btn-group { display: flex; gap: 10px; width: 100%; }
         .btn { padding: 12px 15px; border-radius: 8px; border: none; font-weight: bold; font-size: 0.9rem; cursor: pointer; flex: 1; display: flex; justify-content: center; align-items: center; gap: 8px; transition: opacity 0.2s; }
         .btn-orange { background: var(--accent-orange); color: white; }
         .btn-dark { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); }
@@ -37,15 +40,12 @@
         .w-100 { width: 100%; margin-top: 10px; box-sizing: border-box; }
         .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .input-row label { color: var(--text-main); font-size: 0.9rem; font-family: 'JetBrains Mono', monospace; flex: 1; }
-        .input-row input, .input-row select { background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 6px; width: 140px; font-family: 'JetBrains Mono', monospace; font-size: 1rem; text-align: center; transition: color 0.3s ease; }
-        .input-row input:focus, .input-row select:focus { outline: 1px solid var(--accent-orange); }
-        .log-box { background: var(--bg-input); color: var(--accent-green); font-family: 'JetBrains Mono', monospace; padding: 12px; height: 120px; overflow-y: scroll; border-radius: 8px; font-size: 0.75rem; border: 1px solid var(--border-color); margin-top: 10px; }
-        .log-tx { color: #64748b; }
-        .log-err { color: var(--accent-red); }
+        .input-row input, .input-row select { background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 6px; width: 140px; font-family: 'JetBrains Mono', monospace; font-size: 1rem; text-align: center; transition: color 0.3s ease; user-select: none; }
+        .input-row input:focus, .input-row select:focus { outline: none; }
         .rpm-corr-row { display: flex; align-items: center; justify-content: space-between; }
         .rpm-corr-label { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-main); flex: 1; }
-        .rpm-corr-controls { display: flex; align-items: center; gap: 12px; }
-        .btn-adj { background: var(--bg-input); color: #fff; border: 1px solid var(--border-color); width: 38px; height: 38px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; flex: none; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .rpm-corr-controls { display: flex; align-items: center; gap: 8px; }
+        .btn-adj { background: var(--bg-input); color: #fff; border: 1px solid var(--border-color); width: 38px; height: 38px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; flex: none; display: flex; align-items: center; justify-content: center; transition: background 0.2s; user-select: none; }
         .btn-adj:active { background: #1e293b; }
         #rpmMult { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: bold; color: var(--accent-green); min-width: 45px; text-align: center; }
         .rpm-corr-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-main); margin-top: 10px; text-align: center; padding-top: 10px; border-top: 1px dashed var(--border-color); }
@@ -53,28 +53,27 @@
 </head>
 <body>
 
+<!-- HEADER BARU (Logo Petir Dihapus, Tombol Scan Pindah Kesini) -->
 <header class="app-header">
-    <div class="app-icon">⚡</div>
-    <div class="app-title">
-        <h1>penganguran</h1>
-        <p> </p>
-    </div>
-    <div class="status-dot" id="headerDot"></div>
-</header>
-
-<div class="warning-box">⚠ jare kasdi nak butuhmu pasir aku yo butuh</div>
-<div class="alert-err" id="alertErr"></div>
-
-<div class="card">
-    <div class="card-title">KONEKSI MODUL</div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text-main);margin-bottom:15px;">
-        Status: <span id="bleState">Belum terhubung koyo cintamu</span>
+    <div class="header-top">
+        <div class="app-title">
+            <h1>penganguran</h1>
+        </div>
+        <div class="header-status">
+            <span id="bleState">Belum terhubung koyo cintamu</span>
+            <div class="status-dot" id="headerDot"></div>
+        </div>
     </div>
     <div class="btn-group">
         <button id="connectBtn" class="btn btn-orange">🔍 Scan modul</button>
         <button id="disconnectBtn" class="btn btn-dark" disabled>✕ Putus cintamu</button>
     </div>
-</div>
+</header>
+
+<div class="warning-box">⚠ jare kasdi nak butuhmu pasir aku yo butuh</div>
+<div class="alert-err" id="alertErr"></div>
+
+<!-- Card KONEKSI MODUL yang lama sudah dihapus karena fiturnya pindah ke Header atas -->
 
 <div class="card">
     <div class="card-title">MONITOR</div>
@@ -125,7 +124,11 @@
     <div class="card-title">QUICK SHIFTER aktif</div>
     <div class="input-row">
         <label>Trigger</label>
-        <input type="number" id="targetVal" placeholder="Misal: 450" data-cmd="T">
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('targetVal', -1, 610)">−</button>
+            <input type="number" id="targetVal" placeholder="610" data-cmd="T" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('targetVal', 1, 610)">+</button>
+        </div>
     </div>
     <div class="input-row" style="margin-top:15px;">
         <select id="shiftMode" style="width:100%;" data-cmd="M">
@@ -133,34 +136,94 @@
             <option value="1">⬆ TARIK / Tension</option>
         </select>
     </div>
-    <button class="btn btn-dark w-100" onclick="sendCmd('RECAL')">↻ Kalibrasi Ulang Sensor adc</button>
 </div>
 
 <div class="card">
-    <div class="card-title">CUT DURATION QS</div>
-    <div class="input-row"><label>1000 - 4000</label>  <input type="number" id="c1" placeholder="ms" data-cmd="C1:"></div>
-    <div class="input-row"><label>4000 - 6000</label>  <input type="number" id="c2" placeholder="ms" data-cmd="C2:"></div>
-    <div class="input-row"><label>6000 - 8000</label>  <input type="number" id="c3" placeholder="ms" data-cmd="C3:"></div>
-    <div class="input-row"><label>8000 - 10000</label> <input type="number" id="c4" placeholder="ms" data-cmd="C4:"></div>
-    <div class="input-row"><label>10000 - 12000</label><input type="number" id="c5" placeholder="ms" data-cmd="C5:"></div>
-    <div class="input-row"><label>12000 - 14000</label><input type="number" id="c6" placeholder="ms" data-cmd="C6:"></div>
-    <div class="input-row"><label>14k+ RPM</label>     <input type="number" id="c7" placeholder="ms" data-cmd="C7:"></div>
+    <div class="card-title">CUT DURATION QS (ms)</div>
+    <div class="input-row">
+        <label>1k - 4k</label>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('c1', -5, 80)">−</button>
+            <input type="number" id="c1" placeholder="80" data-cmd="C1:" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('c1', 5, 80)">+</button>
+        </div>
+    </div>
+    <div class="input-row">
+        <label>4k - 6k</label>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('c2', -5, 75)">−</button>
+            <input type="number" id="c2" placeholder="75" data-cmd="C2:" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('c2', 5, 75)">+</button>
+        </div>
+    </div>
+    <div class="input-row">
+        <label>6k - 8k</label>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('c3', -5, 70)">−</button>
+            <input type="number" id="c3" placeholder="70" data-cmd="C3:" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('c3', 5, 70)">+</button>
+        </div>
+    </div>
+    <div class="input-row">
+        <label>8k - 10k</label>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('c4', -5, 65)">−</button>
+            <input type="number" id="c4" placeholder="65" data-cmd="C4:" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('c4', 5, 65)">+</button>
+        </div>
+    </div>
+    <div class="input-row">
+        <label>10k - 12k</label>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('c5', -5, 60)">−</button>
+            <input type="number" id="c5" placeholder="60" data-cmd="C5:" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('c5', 5, 60)">+</button>
+        </div>
+    </div>
+    <div class="input-row">
+        <label>12k - 14k</label>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('c6', -5, 55)">−</button>
+            <input type="number" id="c6" placeholder="55" data-cmd="C6:" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('c6', 5, 55)">+</button>
+        </div>
+    </div>
+    <div class="input-row">
+        <label>14k+</label>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('c7', -5, 50)">−</button>
+            <input type="number" id="c7" placeholder="50" data-cmd="C7:" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('c7', 5, 50)">+</button>
+        </div>
+    </div>
 </div>
 
 <div class="card">
     <div class="card-title">PIT LIMITER</div>
-    <div class="input-row"><label>Limit RPM</label><input type="number" id="pl" placeholder="RPM" data-cmd="PL"></div>
-    <div class="input-row"><label>Cut off.</label>  <input type="number" id="pd" placeholder="ms"  data-cmd="PD"></div>
-    <div class="input-row"><label>Rest on.</label>  <input type="number" id="pr" placeholder="ms"  data-cmd="PR"></div>
-</div>
-
-<div class="card">
-    <div class="card-title">TERMINAL LOG</div>
-    <div class="btn-group">
-        <button class="btn btn-dark" onclick="sendCmd('INFO')">Data loger qs</button>
-        <button class="btn btn-dark" onclick="sendCmd('PI')">Info PIT</button>
+    <div class="input-row">
+        <label>Limit RPM</label>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('pl', -250, 4000)">−</button>
+            <input type="number" id="pl" placeholder="4000" data-cmd="PL" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('pl', 250, 4000)">+</button>
+        </div>
     </div>
-    <div class="log-box" id="terminal"></div>
+    <div class="input-row">
+        <label>Cut off (ms)</label>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('pd', -5, 40)">−</button>
+            <input type="number" id="pd" placeholder="40" data-cmd="PD" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('pd', 5, 40)">+</button>
+        </div>
+    </div>
+    <div class="input-row">
+        <label>Rest on (ms)</label>
+        <div class="rpm-corr-controls">
+            <button class="btn-adj" onclick="adjustVal('pr', -5, 40)">−</button>
+            <input type="number" id="pr" placeholder="40" data-cmd="PR" style="width: 70px;" readonly>
+            <button class="btn-adj" onclick="adjustVal('pr', 5, 40)">+</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -170,7 +233,7 @@ const TX_UUID      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
 let bleDevice, rxCharacteristic, txCharacteristic;
 let isConnecting = false;
-let receiveBuffer = ""; // Penampung data agar tidak terpotong
+let receiveBuffer = ""; 
 
 // RPM CORRECTION
 let rpmMultiplier = 2.0;
@@ -190,7 +253,6 @@ const disconnectBtn = document.getElementById('disconnectBtn');
 const bleState      = document.getElementById('bleState');
 const headerDot     = document.getElementById('headerDot');
 const monitorText   = document.getElementById('monitorText');
-const terminal      = document.getElementById('terminal');
 const rpmVal        = document.getElementById('rpmVal');
 const sensVal       = document.getElementById('sensVal');
 const alertErr      = document.getElementById('alertErr');
@@ -199,14 +261,6 @@ if (!navigator.bluetooth) {
     alertErr.innerHTML = '❌ Web Bluetooth tidak tersedia.<br>Buka di <b>Chrome Android</b> via HTTPS — bukan di HTML editor / file lokal.';
     alertErr.style.display = 'block';
     connectBtn.disabled = true;
-}
-
-function logToTerminal(text, cls) {
-    const d = document.createElement('div');
-    d.textContent = '> ' + text;
-    if (cls) d.className = cls;
-    terminal.appendChild(d);
-    terminal.scrollTop = terminal.scrollHeight;
 }
 
 function setUI(connected, msg) {
@@ -225,7 +279,7 @@ function setUI(connected, msg) {
         rpmVal.style.color = 'var(--accent-green)';
         sensVal.innerText = '-';
         isConnecting = false;
-        receiveBuffer = ""; // Reset buffer saat diskonek
+        receiveBuffer = ""; 
     }
 }
 
@@ -255,7 +309,6 @@ connectBtn.addEventListener('click', async () => {
         txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
 
         setUI(true, 'Terkoneksi ✓');
-        logToTerminal('Bluetooth Berhasil Terkoneksi!');
         setTimeout(() => sendCmd('INFO'), 600);
         setTimeout(() => sendCmd('PI'),   1200);
 
@@ -268,7 +321,6 @@ connectBtn.addEventListener('click', async () => {
             alertErr.textContent = '❌ ' + msg;
             alertErr.style.display = 'block';
             setUI(false, 'Gagal koneksi');
-            logToTerminal('Error: ' + msg, 'log-err');
         }
     }
 });
@@ -279,20 +331,38 @@ disconnectBtn.addEventListener('click', () => {
 
 function onDisconnected() {
     setUI(false, 'Terputus');
-    logToTerminal('Perangkat terputus.', 'log-err');
 }
 
 let debounceTimers = {};
-document.querySelectorAll('input[data-cmd], select[data-cmd]').forEach(el => {
-    el.addEventListener('input', () => {
+
+document.querySelectorAll('select[data-cmd]').forEach(el => {
+    el.addEventListener('change', () => {
         clearTimeout(debounceTimers[el.id]);
         el.style.color = 'var(--accent-red)';
-                debounceTimers[el.id] = setTimeout(() => {
+        debounceTimers[el.id] = setTimeout(() => {
             let cmd = el.getAttribute('data-cmd') + el.value;
             sendCmd(cmd).then(() => { el.style.color = '#fff'; });
         }, 800);
     });
 });
+
+function adjustVal(id, delta, defaultVal) {
+    const input = document.getElementById(id);
+    let val = parseInt(input.value);
+    if (isNaN(val)) val = defaultVal; 
+    val += delta;
+    
+    if (id !== 'targetVal' && val < 0) val = 0; 
+    
+    input.value = val;
+    input.style.color = 'var(--accent-red)';
+    
+    clearTimeout(debounceTimers[id]);
+    debounceTimers[id] = setTimeout(() => {
+        let cmd = input.getAttribute('data-cmd') + val;
+        sendCmd(cmd).then(() => { input.style.color = '#fff'; });
+    }, 800);
+}
 
 const setVal = (id, v) => { const e = document.getElementById(id); if(e){ e.value=v; e.style.color='#fff'; } };
 
@@ -301,7 +371,7 @@ function handleNotifications(event) {
     receiveBuffer += chunk;
     
     let lines = receiveBuffer.split('\n');
-    receiveBuffer = lines.pop(); // Simpan sisa string yang belum ada 'enter' nya
+    receiveBuffer = lines.pop(); 
 
     for (let text of lines) {
         text = text.trim();
@@ -315,47 +385,4 @@ function handleNotifications(event) {
                 const div = Math.round(parseInt(sensM[1]) / 4);
                 sensVal.innerText = div;
                 const pct = Math.max(0, Math.min((div / 1000) * 100, 100));
-                document.getElementById('qsPointer').style.left = pct + '%';
-            }
-            if (text.includes('[PIT ON]')) {
-                rpmVal.style.color = 'var(--accent-red)';
-                monitorText.innerText = '⚠ PIT LIMITER AKTIF!';
-                monitorText.style.color = 'var(--accent-red)';
-            } else {
-                rpmVal.style.color = 'var(--accent-green)';
-                monitorText.innerText = 'Monitoring Aktif...';
-                monitorText.style.color = 'var(--text-main)';
-            }
-        }
-        else if (text.includes('=== SETTING PERMANEN TERSIMPAN ===')) {
-            document.querySelectorAll('input,select').forEach(e => { if(e.value!=='') e.style.color='#fff'; });
-            logToTerminal('INFO: Data Tersimpan.');
-        }
-        else if (text.includes('Threshold :'))  setVal('targetVal', parseInt(text.split(':')[1]));
-        else if (text.includes('ShiftMode :'))  setVal('shiftMode', parseInt(text.split(':')[1]));
-        else if (text.includes('Pit Limit :'))  setVal('pl', parseInt(text.split(':')[1]));
-        else if (text.includes('Pit Cut'))      setVal('pd', parseInt(text.split(':')[1]));
-        else if (text.includes('Pit Rest'))     setVal('pr', parseInt(text.split(':')[1]));
-        else if (text.includes('C1:1k-4k'))     setVal('c1', parseInt(text.split(':')[2]));
-        else if (text.includes('C2:4k-6k'))     setVal('c2', parseInt(text.split(':')[2]));
-        else if (text.includes('C3:6k-8k'))     setVal('c3', parseInt(text.split(':')[2]));
-        else if (text.includes('C4:8k-10k'))    setVal('c4', parseInt(text.split(':')[2]));
-        else if (text.includes('C5:10k-12k'))   setVal('c5', parseInt(text.split(':')[2]));
-        else if (text.includes('C6:12k-14k'))   setVal('c6', parseInt(text.split(':')[2]));
-        else if (text.includes('C7:14k+'))      setVal('c7', parseInt(text.split(':')[2]));
-        else logToTerminal(text);
-    }
-}
-
-async function sendCmd(cmd) {
-    if (!rxCharacteristic) { logToTerminal('Belum konek!', 'log-err'); return; }
-    try {
-        await rxCharacteristic.writeValue(new TextEncoder().encode(cmd));
-        logToTerminal(cmd, 'log-tx');
-    } catch(e) {
-        logToTerminal('Gagal kirim: ' + cmd, 'log-err');
-    }
-}
-</script>
-</body>
-</html>
+                document.getElementById('qsPointer').style.left = p
