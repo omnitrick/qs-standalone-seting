@@ -124,7 +124,7 @@
         <div class="toggle-label">Shifter Up Direction
             <small>tap: DORONG ⇄ TARIK</small>
         </div>
-        <div class="toggle-value" id="modeVal">TARIK</div>
+        <div class="toggle-value" id="modeVal">Compression</div>
     </div>
     <div class="monitor-box">
         <div class="monitor-grid">
@@ -207,7 +207,7 @@
                     <div class="thresh-btn" onclick="adjDebounce(1)">›</div>
                 </div>
                 <div class="hint">
-                    Makin besar = makin anti getar/noise, tapi rilis kunci QS makin lambat. Default firmware: 30.
+                    Makin besar = makin anti getar/noise, tapi rilis kunci QS makin lambat. kalo qs aktif 2x atau lebih angka di tambah! Default : 30.
                 </div>
                 <div class="thresh-row">
                     <div class="thresh-btn" onclick="adjRpmCorr(-1)">‹</div>
@@ -221,7 +221,8 @@
                     <div class="thresh-btn" onclick="adjRpmCorr(1)">›</div>
                 </div>
                 <div class="hint">
-                    Faktor koreksi pembacaan RPM engine. Default firmware: 2.0.
+                    koreksi pembacaan RPM engine. Default: 2.0.
+                    (untuk 2T biasanya 1.0) atur -+ sampe sama dengan rpm motor
                 </div>
             </div>
 
@@ -522,7 +523,7 @@ function flashPending(elId){
     if(!el) return;
     el.classList.add('pending');
     clearTimeout(pendingTimers[elId]);
-    pendingTimers[elId] = setTimeout(() => { el.classList.remove('pending'); }, 2000);
+    pendingTimers[elId] = setTimeout(() => { el.classList.remove('pending'); }, 2500);
 }
 
 // ---- shift mode (M0/M1) ----
