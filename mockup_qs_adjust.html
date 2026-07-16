@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QS Adjust - Sync Firmware</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap');
+    :root {
+        --bg-main:#0f1115; --bg-card:#16191f; --bg-input:#0a0c0f;
+        --text-main:#94a3b8; --text-light:#f1f5f9; --accent-orange:#64748b;
+        --accent-red:#ef4444; --accent-green:#10b981; --border-color:#1e293b;
+    }
+    body{font-family:'Roboto',sans-serif;background:var(--bg-main);color:var(--text-light);margin:0;padding:15px;padding-bottom:60px;}
+    .card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;margin-bottom:20px;}
+
+    .toggle-row{display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid var(--border-color);cursor:pointer;user-select:none;transition:background .15s;}
+    .toggle-row:last-child{border-bottom:none;}
+    .toggle-row:active{background:#1c212a;}
+    .toggle-label{font-size:1.05rem;color:#dbe3ee;line-height:1.2;}
+    .toggle-label small{display:block;font-size:0.7rem;color:var(--text-main);font-family:'JetBrains Mono',monospace;}
+    .toggle-value{font-size:1.15rem;font-weight:bold;color:var(--accent-red);font-family:'JetBrains Mono',monospace;transition:color .15s;}
+    .toggle-value.on{color:var(--accent-green);}
+
+    .monitor-box{padding:20px 15px;}
+    .monitor-grid{display:flex;justify-content:space-between;text-align:center;}
+    .monitor-item{flex:1;}
+    .monitor-item:first-child{border-right:1px solid var(--border-color);}
+    .monitor-label{font-size:0.75rem;color:var(--text-main);font-family:'JetBrains Mono',monospace;margin-bottom:6px;}
+    .monitor-value{font-family:'JetBrains Mono',monospace;font-size:2.4rem;font-weight:bold;color:var(--accent-green);transition:color .15s;}
+    .monitor-value.pit-active{color:var(--accent-red);}
+    .pit-flag{text-align:center;font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--accent-red);padding-top:8px;min-height:1.2em;}
+
+    .carousel-shell{position:relative;margin-bottom:20px;}
+    .carousel-viewport{overflow:hidden;border-radius:12px;border:1px solid var(--border-color);}
+    .carousel-track{display:flex;transition:transform .3s ease;}
+    .slide{flex:0 0 100%;background:var(--bg-card);box-sizing:border-box;}
+
+    .slide-title{font-size:0.8rem;font-weight:bold;color:var(--accent-orange);letter-spacing:1px;padding:14px 15px 0 15px;display:flex;align-items:center;}
+    .slide-title::before{content:"";display:inline-block;width:3px;height:14px;background:var(--accent-orange);margin-right:8px;}
+
+    .nav-arrow{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:rgba(15,17,21,0.9);border:1px solid var(--border-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;user-select:none;z-index:5;transition:opacity .2s;}
+    .nav-arrow.prev{left:-8px;}
+    .nav-arrow.next{right:-8px;}
+    .nav-arrow.disabled{opacity:0;pointer-events:none;}
+
+    .dots{display:flex;justify-content:center;gap:6px;margin-top:10px;}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--border-color);transition:background .2s,width .2s;}
+    .dot.active{background:var(--accent-orange);width:18px;border-radius:4px;}
+
+    .slider-pad{padding:16px 15px 10px 15px;}
+    .slider-wrap{position:relative;margin:0 5px 6px 5px;padding-top:26px;}
+    .slider-track{height:8px;border-radius:4px;background:linear-gradient(90deg,#10b981,#0ea5e9,#3730a3);position:relative;}
+    .marker{position:absolute;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;transition:left .15s,color .2s;}
+    .marker .marker-arrow{font-size:0.9rem;line-height:1;color:#38bdf8;}
+    .marker.tension .marker-arrow{color:#34d399;}
+    .marker.compression .marker-arrow{color:#38bdf8;}
+    .marker.mid{top:-4px;}
+    .marker.mid .tri{width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:11px solid #f1f5f9;}
+    .marker.mid .bar{width:3px;height:8px;background:var(--accent-red);margin-bottom:2px;}
+    .scale{display:flex;justify-content:space-between;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-main);}
+    .scale.scale-dense{font-size:0.6rem;}
+
+    .thresh-row{display:flex;align-items:center;justify-content:space-between;padding:18px 15px;border-top:1px solid var(--border-color);}
+    .thresh-btn{background:linear-gradient(180deg,#1d4e73,#0d2b3f);border:1px solid #2b6c99;color:#dbeafe;width:48px;height:48px;border-radius:10px;font-size:1.3rem;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;user-select:none;}
+    .thresh-btn:active{background:#123049;}
+    .thresh-mid{text-align:center;flex:1;}
+    .thresh-mid .lbl-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:4px;}
+    .thresh-mid .lbl{color:#dbe3ee;font-size:0.95rem;}
+    .thresh-mid .val{font-family:'JetBrains Mono',monospace;font-weight:bold;font-size:2.2rem;color:var(--text-light);transition:color .15s;}
+
+    .hint{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-main);text-align:center;padding:14px;border-top:1px dashed var(--border-color);}
+
+    .input-row{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-top:1px solid var(--border-color);}
+    .input-row:first-of-type{border-top:none;}
+    .input-row .label-row{display:flex;align-items:center;gap:6px;flex:1;}
+    .input-row label{color:#dbe3ee;font-size:0.95rem;font-family:'JetBrains Mono',monospace;}
+    .cut-controls{display:flex;align-items:center;gap:10px;}
+    .cut-btn{background:var(--bg-input);color:#fff;border:1px solid var(--border-color);width:34px;height:34px;border-radius:8px;font-size:1.1rem;cursor:pointer;flex:none;display:flex;align-items:center;justify-content:center;user-select:none;}
+    .cut-btn:active{background:#1e293b;}
+    .cut-val{font-family:'JetBrains Mono',monospace;font-size:1.15rem;font-weight:bold;color:var(--text-light);min-width:48px;text-align:center;transition:color .15s;}
+
+    .step-chip{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-main);background:var(--bg-input);border:1px solid var(--border-color);border-radius:999px;padding:2px 8px;cursor:pointer;user-select:none;transition:border-color .15s,color .15s;flex-shrink:0;}
+    .step-chip:active{border-color:var(--accent-orange);color:#cbd5e1;}
+
+    .connect-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin-bottom:16px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;}
+    .connect-status{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text-main);}
+    .status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent-red);box-shadow:0 0 6px var(--accent-red);transition:all .3s;flex-shrink:0;}
+    .status-dot.connected{background:var(--accent-green);box-shadow:0 0 6px var(--accent-green);}
+    .connect-btn{background:transparent;border:1px solid var(--accent-orange);color:#cbd5e1;font-family:'JetBrains Mono',monospace;font-size:0.72rem;padding:6px 12px;border-radius:7px;cursor:pointer;user-select:none;transition:background .15s;}
+    .connect-btn:active{background:#1c212a;}
+    .connect-btn.connected{border-color:var(--accent-green);color:var(--accent-green);}
+
+    .val.pending, .cut-val.pending{ color: var(--accent-red) !important; }
+
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;box-sizing:border-box;}
+    .modal-overlay.open{display:flex;}
+    .modal-box{background:var(--bg-card);border:1px solid var(--border-color);border-radius:14px;width:100%;max-width:320px;overflow:hidden;}
+    .modal-header{display:flex;align-items:center;gap:10px;padding:16px 18px;background:#1c212a;border-bottom:2px solid var(--accent-orange);}
+    .modal-header .icon{font-size:1.1rem;}
+    .modal-header .title{font-weight:bold;color:#fff;font-size:1rem;}
+    .modal-body{padding:20px 18px;}
+    .modal-row{display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:8px;padding:14px;}
+    .modal-row .m-label{color:#7dd3fc;font-family:'JetBrains Mono',monospace;font-size:0.9rem;}
+    .modal-row input{background:transparent;border:none;color:#fff;font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:bold;text-align:right;width:100px;outline:none;}
+    .modal-confirm{display:block;width:100%;margin-top:18px;background:var(--accent-orange);color:#fff;border:none;padding:14px;border-radius:999px;font-weight:bold;font-size:1rem;cursor:pointer;}
+    .modal-confirm:active{opacity:.85;}
+
+    .log-line{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-main);text-align:center;padding:8px;}
+</style>
+</head>
+<body>
+
+<div class="connect-bar" onclick="toggleConnect()">
+    <div class="connect-status">
+        <div class="status-dot" id="connDot"></div>
+        <span id="connText">Belum terhubung</span>
+    </div>
+    <div class="connect-btn" id="connBtn">🔍 Scan modul</div>
+</div>
+
+<div class="card">
+    <div class="toggle-row" id="modeRow" onclick="toggleShiftMode()">
+        <div class="toggle-label">Shifter Up Direction
+            <small>tap: TEKAN ⇄ TARIK</small>
+        </div>
+        <div class="toggle-value" id="modeVal">Compression</div>
+    </div>
+    <div class="monitor-box">
+        <div class="monitor-grid">
+            <div class="monitor-item">
+                <div class="monitor-label">RPM ENGINE</div>
+                <div class="monitor-value" id="rpmVal">-</div>
+            </div>
+            <div class="monitor-item">
+                <div class="monitor-label">SENSOR ADC</div>
+                <div class="monitor-value" id="sensVal">-</div>
+            </div>
+        </div>
+        <div class="pit-flag" id="pitFlag"></div>
+    </div>
+</div>
+
+<div class="carousel-shell">
+    <div class="carousel-viewport">
+        <div class="carousel-track" id="track">
+
+            <!-- SLIDE 1: TRIGGER & THRESHOLD (dua threshold independen: Tension & Compression) -->
+            <div class="slide">
+                <div class="slide-title">TRIGGER &amp; THRESHOLD</div>
+                <div class="slider-pad">
+                    <div class="slider-wrap">
+                        <div class="marker tension" id="markTension" style="left:60%;">
+                            <div class="marker-arrow">⬇</div>
+                        </div>
+                        <div class="marker compression" id="markCompression" style="left:40%;">
+                            <div class="marker-arrow">⬇</div>
+                        </div>
+                        <div class="marker mid" id="markCenter" style="left:50%;">
+                            <div class="bar"></div><div class="tri"></div>
+                        </div>
+                        <div class="slider-track"></div>
+                    </div>
+                    <div class="scale scale-dense">
+                        <span>0</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span><span>600</span><span>700</span><span>800</span><span>900</span><span>1000</span>
+                    </div>
+                </div>
+                <div class="thresh-row">
+                    <div class="thresh-btn" onclick="adjTension(-1)">‹</div>
+                    <div class="thresh-mid">
+                        <div class="lbl-row">
+                            <div class="lbl">Tension Threshold</div>
+                            <div class="step-chip" id="stepchip-tension" onclick="openStepModal('tension')">±10</div>
+                        </div>
+                        <div class="val" id="tensionVal">600</div>
+                    </div>
+                    <div class="thresh-btn" onclick="adjTension(1)">›</div>
+                </div>
+                <div class="thresh-row">
+                    <div class="thresh-btn" onclick="adjCompression(-1)">‹</div>
+                    <div class="thresh-mid">
+                        <div class="lbl-row">
+                            <div class="lbl">Compression Threshold</div>
+                            <div class="step-chip" id="stepchip-compression" onclick="openStepModal('compression')">±10</div>
+                        </div>
+                        <div class="val" id="compressionVal">400</div>
+                    </div>
+                    <div class="thresh-btn" onclick="adjCompression(1)">›</div>
+                </div>
+                <div class="hint">
+                    Hijau = TARIK (Tension), biru = TEKAN (Compression) — kedua nilai ini absolut, cut langsung terjadi persis di titik itu. Segitiga putih = posisi sensor LIVE saat ini (update tiap ~150ms), cuma info, tidak memengaruhi titik trigger.
+                </div>
+            </div>
+
+            <!-- SLIDE 2: DEBOUNCE (hysteresis) + RPM CORRECTION -->
+            <div class="slide">
+                <div class="slide-title">DEBOUNCE (HYSTERESIS)</div>
+                <div class="thresh-row" style="border-top:none;margin-top:14px;">
+                    <div class="thresh-btn" onclick="adjDebounce(-1)">‹</div>
+                    <div class="thresh-mid">
+                        <div class="lbl-row">
+                            <div class="lbl">Debounce (ADC unit)</div>
+                            <div class="step-chip" id="stepchip-debounce" onclick="openStepModal('debounce')">±5</div>
+                        </div>
+                        <div class="val" id="debounceVal">30</div>
+                    </div>
+                    <div class="thresh-btn" onclick="adjDebounce(1)">›</div>
+                </div>
+                <div class="hint">
+                    Makin besar = makin anti getar/noise, tapi rilis kunci QS makin lambat. Default firmware: 30.
+                </div>
+                <div class="thresh-row">
+                    <div class="thresh-btn" onclick="adjRpmCorr(-1)">‹</div>
+                    <div class="thresh-mid">
+                        <div class="lbl-row">
+                            <div class="lbl">RPM Correction</div>
+                            <div class="step-chip" id="stepchip-rpmCorr" onclick="openStepModal('rpmCorr')">±0.1</div>
+                        </div>
+                        <div class="val" id="rpmCorrVal">2.0</div>
+                    </div>
+                    <div class="thresh-btn" onclick="adjRpmCorr(1)">›</div>
+                </div>
+                <div class="hint">
+                    Faktor koreksi pembacaan RPM engine. Default firmware: 2.0.
+                </div>
+            </div>
+
+            <!-- SLIDE 3: CUT DURATION -->
+            <div class="slide">
+                <div class="slide-title">CUT DURATION QS (ms)</div>
+                <div class="input-row">
+                    <div class="label-row"><label>1k - 4k</label><div class="step-chip" id="stepchip-c1" onclick="openStepModal('c1')">±5</div></div>
+                    <div class="cut-controls">
+                        <div class="cut-btn" onclick="adjCut('c1',-1)">−</div>
+                        <div class="cut-val" id="c1">80</div>
+                        <div class="cut-btn" onclick="adjCut('c1',1)">+</div>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="label-row"><label>4k - 6k</label><div class="step-chip" id="stepchip-c2" onclick="openStepModal('c2')">±5</div></div>
+                    <div class="cut-controls">
+                        <div class="cut-btn" onclick="adjCut('c2',-1)">−</div>
+                        <div class="cut-val" id="c2">70</div>
+                        <div class="cut-btn" onclick="adjCut('c2',1)">+</div>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="label-row"><label>6k - 8k</label><div class="step-chip" id="stepchip-c3" onclick="openStepModal('c3')">±5</div></div>
+                    <div class="cut-controls">
+                        <div class="cut-btn" onclick="adjCut('c3',-1)">−</div>
+                        <div class="cut-val" id="c3">65</div>
+                        <div class="cut-btn" onclick="adjCut('c3',1)">+</div>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="label-row"><label>8k - 10k</label><div class="step-chip" id="stepchip-c4" onclick="openStepModal('c4')">±5</div></div>
+                    <div class="cut-controls">
+                        <div class="cut-btn" onclick="adjCut('c4',-1)">−</div>
+                        <div class="cut-val" id="c4">60</div>
+                        <div class="cut-btn" onclick="adjCut('c4',1)">+</div>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="label-row"><label>10k - 12k</label><div class="step-chip" id="stepchip-c5" onclick="openStepModal('c5')">±5</div></div>
+                    <div class="cut-controls">
+                        <div class="cut-btn" onclick="adjCut('c5',-1)">−</div>
+                        <div class="cut-val" id="c5">55</div>
+                        <div class="cut-btn" onclick="adjCut('c5',1)">+</div>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="label-row"><label>12k - 14k</label><div class="step-chip" id="stepchip-c6" onclick="openStepModal('c6')">±5</div></div>
+                    <div class="cut-controls">
+                        <div class="cut-btn" onclick="adjCut('c6',-1)">−</div>
+                        <div class="cut-val" id="c6">50</div>
+                        <div class="cut-btn" onclick="adjCut('c6',1)">+</div>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="label-row"><label>14k+</label><div class="step-chip" id="stepchip-c7" onclick="openStepModal('c7')">±5</div></div>
+                    <div class="cut-controls">
+                        <div class="cut-btn" onclick="adjCut('c7',-1)">−</div>
+                        <div class="cut-val" id="c7">45</div>
+                        <div class="cut-btn" onclick="adjCut('c7',1)">+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: PIT LIMITER -->
+            <div class="slide">
+                <div class="slide-title">PIT LIMITER</div>
+                <div class="input-row" style="border-top:none;">
+                    <div class="label-row"><label>Limit RPM</label><div class="step-chip" id="stepchip-pl" onclick="openStepModal('pl')">±250</div></div>
+                    <div class="cut-controls">
+                        <div class="cut-btn" onclick="adjCut('pl',-1)">−</div>
+                        <div class="cut-val" id="pl">5000</div>
+                        <div class="cut-btn" onclick="adjCut('pl',1)">+</div>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="label-row"><label>Cut off (ms)</label><div class="step-chip" id="stepchip-pd" onclick="openStepModal('pd')">±5</div></div>
+                    <div class="cut-controls">
+                        <div class="cut-btn" onclick="adjCut('pd',-1)">−</div>
+                        <div class="cut-val" id="pd">60</div>
+                        <div class="cut-btn" onclick="adjCut('pd',1)">+</div>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="label-row"><label>Rest on (ms)</label><div class="step-chip" id="stepchip-pr" onclick="openStepModal('pr')">±5</div></div>
+                    <div class="cut-controls">
+                        <div class="cut-btn" onclick="adjCut('pr',-1)">−</div>
+                        <div class="cut-val" id="pr">100</div>
+                        <div class="cut-btn" onclick="adjCut('pr',1)">+</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="nav-arrow prev disabled" id="prevArrow" onclick="goSlide(-1)">‹</div>
+    <div class="nav-arrow next" id="nextArrow" onclick="goSlide(1)">›</div>
+</div>
+<div class="dots" id="dots">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+</div>
+
+<div class="log-line" id="logLine">Belum ada data dari modul.</div>
+
+<div class="modal-overlay" id="stepModal" onclick="closeStepModalOutside(event)">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span class="icon">✏️</span>
+            <span class="title">Set Adjust Step</span>
+        </div>
+        <div class="modal-body">
+            <div class="modal-row">
+                <span class="m-label">Step</span>
+                <input type="number" id="stepInput" inputmode="decimal">
+            </div>
+            <button class="modal-confirm" onclick="confirmStep()">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// =========================================================
+// KONEKSI BLE - Nordic UART Service, sesuai firmware qs_cdi_v8
+// =========================================================
+const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const RX_UUID      = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"; // WRITE - kirim command ke device
+const TX_UUID      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; // NOTIFY - terima data dari device
+
+let bleDevice, writeChar, notifyChar;
+let connected = false;
+let receiveBuffer = "";
+let inSyncBlock = false; // true selama menerima blok "=== DATA TERSIMPAN ===" ... "=== SYNC SELESAI ==="
+
+async function toggleConnect(){
+    if(connected){ disconnectBLE(); return; }
+    try{
+        bleDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ services: [SERVICE_UUID] }],
+            optionalServices: [SERVICE_UUID]
+        });
+        bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+        const server  = await bleDevice.gatt.connect();
+        const service = await server.getPrimaryService(SERVICE_UUID);
+        writeChar  = await service.getCharacteristic(RX_UUID);
+        notifyChar = await service.getCharacteristic(TX_UUID);
+        await notifyChar.startNotifications();
+        notifyChar.addEventListener('characteristicvaluechanged', onNotify);
+
+        connected = true;
+        receiveBuffer = "";
+        setConnUI(true);
+    } catch(err){
+        console.error(err);
+        setLog("Gagal konek: " + err.message);
+    }
+}
+
+function onDisconnected(){
+    connected = false;
+    setConnUI(false);
+    setLog("Modul terputus.");
+}
+
+function disconnectBLE(){
+    if(bleDevice && bleDevice.gatt.connected){ bleDevice.gatt.disconnect(); }
+    connected = false;
+    setConnUI(false);
+}
+
+function setConnUI(isOn){
+    document.getElementById('connDot').classList.toggle('connected', isOn);
+    document.getElementById('connBtn').classList.toggle('connected', isOn);
+    document.getElementById('connBtn').textContent = isOn ? '✕ Putus' : '🔍 Scan modul';
+    document.getElementById('connText').textContent = isOn ? 'Terhubung' : 'Belum terhubung';
+}
+
+function sendCommand(cmd){
+    if(!connected || !writeChar) { setLog("Belum terhubung ke modul."); return; }
+    const enc = new TextEncoder();
+    writeChar.writeValue(enc.encode(cmd)).catch(err => setLog("Gagal kirim: " + err.message));
+}
+
+function setLog(msg){
+    document.getElementById('logLine').textContent = msg;
+}
+
+// ---- parsing data masuk dari firmware ----
+function onNotify(event){
+    const chunk = new TextDecoder().decode(event.target.value);
+    receiveBuffer += chunk;
+    let idx;
+    while((idx = receiveBuffer.indexOf('\n')) !== -1){
+        const line = receiveBuffer.substring(0, idx).trim();
+        receiveBuffer = receiveBuffer.substring(idx + 1);
+        if(line.length > 0) handleLine(line);
+    }
+}
+
+function handleLine(line){
+    // baris monitoring realtime: "RPM: 4200 | Sens: 2311 [PIT ON]"
+    const rpmMatch = line.match(/^RPM:\s*(-?\d+)\s*\|\s*Sens:\s*(-?\d+)/);
+    if(rpmMatch){
+        const uiSens = Math.round(parseInt(rpmMatch[2]) / 4);
+        const pitActive = line.includes('[PIT ON]');
+        document.getElementById('rpmVal').textContent = rpmMatch[1];
+        document.getElementById('sensVal').textContent = uiSens;
+        document.getElementById('rpmVal').classList.toggle('pit-active', pitActive);
+        document.getElementById('pitFlag').textContent = pitActive ? 'PIT ON' : '';
+        state.center = clamp(uiSens, 0, 1000);
+        renderThresh();
+        return;
+    }
+
+    // penanda blok sync setting awal saat baru connect
+    if(line.includes('DATA TERSIMPAN')){ inSyncBlock = true; setLog('Menerima setting dari modul...'); return; }
+    if(line.includes('SYNC SELESAI')){ inSyncBlock = false; setLog('Setting tersinkron dengan modul.'); return; }
+
+    if(inSyncBlock){
+        applySyncLine(line);
+        return;
+    }
+
+    // baris status lain (konfirmasi command, pit on/off, dll) - tampilkan di log saja
+    setLog(line);
+}
+
+// terapkan baris "Label : value" dari blok sync ke state lokal + UI
+function applySyncLine(line){
+    const sep = line.lastIndexOf(':');
+    if(sep === -1) return;
+    const label = line.substring(0, sep).trim();
+    const rest  = line.substring(sep + 1).trim();
+    const num   = parseFloat(rest);
+    if(isNaN(num)) return;
+
+    if(label.startsWith('Threshold Tension')){
+        state.tensionThreshold = clamp(Math.round(num / 4), 0, 1000);
+        renderThresh();
+    }
+    else if(label.startsWith('Threshold Compression')){
+        state.compressionThreshold = clamp(Math.round(num / 4), 0, 1000);
+        renderThresh();
+    }
+    else if(label.startsWith('Resting')){ state.center = Math.round(num / 4); renderThresh(); }
+    else if(label === 'ShiftMode'){ state.shiftMode = num; renderMode(); }
+    else if(label.startsWith('Hysteresis')){ state.debounce = num; renderDebounce(); }
+    else if(label.startsWith('RPM Correction')){ state.rpmCorrection = num; renderRpmCorr(); }
+    else if(label.startsWith('Pit Limit')){ cutVals.pl = num; document.getElementById('pl').textContent = num; }
+    else if(label.startsWith('Pit Cut')){ cutVals.pd = num; document.getElementById('pd').textContent = num; }
+    else if(label.startsWith('Pit Rest')){ cutVals.pr = num; document.getElementById('pr').textContent = num; }
+    else if(label.startsWith('C1')){ cutVals.c1 = num; document.getElementById('c1').textContent = num; }
+    else if(label.startsWith('C2')){ cutVals.c2 = num; document.getElementById('c2').textContent = num; }
+    else if(label.startsWith('C3')){ cutVals.c3 = num; document.getElementById('c3').textContent = num; }
+    else if(label.startsWith('C4')){ cutVals.c4 = num; document.getElementById('c4').textContent = num; }
+    else if(label.startsWith('C5')){ cutVals.c5 = num; document.getElementById('c5').textContent = num; }
+    else if(label.startsWith('C6')){ cutVals.c6 = num; document.getElementById('c6').textContent = num; }
+    else if(label.startsWith('C7')){ cutVals.c7 = num; document.getElementById('c7').textContent = num; }
+}
+
+// =========================================================
+// STATE & KONTROL UI
+// =========================================================
+function clamp(v,lo,hi){ return Math.max(lo, Math.min(hi, v)); }
+
+let steps = { tension:10, compression:10, debounce:5, rpmCorr:0.1, c1:5,c2:5,c3:5,c4:5,c5:5,c6:5,c7:5, pl:250, pd:5, pr:5 };
+let activeStepField = null;
+
+function openStepModal(id){
+    activeStepField = id;
+    document.getElementById('stepInput').value = steps[id];
+    document.getElementById('stepModal').classList.add('open');
+    setTimeout(() => {
+        const inp = document.getElementById('stepInput');
+        inp.focus(); inp.select();
+    }, 50);
+}
+function closeStepModalOutside(e){
+    if(e.target.id === 'stepModal'){ document.getElementById('stepModal').classList.remove('open'); }
+}
+function confirmStep(){
+    const raw = parseFloat(document.getElementById('stepInput').value);
+    if(!isNaN(raw) && raw > 0 && activeStepField){
+        steps[activeStepField] = raw;
+        const chip = document.getElementById('stepchip-' + activeStepField);
+        if(chip) chip.textContent = '±' + raw;
+    }
+    document.getElementById('stepModal').classList.remove('open');
+    activeStepField = null;
+}
+
+// nilai putih normal -> merah selama pending -> putih lagi setelah AUTO-SAVE FIRMWARE (2 detik, sesuai kode)
+let pendingTimers = {};
+function flashPending(elId){
+    const el = document.getElementById(elId);
+    if(!el) return;
+    el.classList.add('pending');
+    clearTimeout(pendingTimers[elId]);
+    pendingTimers[elId] = setTimeout(() => { el.classList.remove('pending'); }, 2000);
+}
+
+// ---- shift mode (M0/M1) ----
+let state = { tensionThreshold:600, compressionThreshold:400, center:500, debounce:30, rpmCorrection:2.0, shiftMode:0 };
+
+function renderMode(){
+    const isTension = state.shiftMode === 1;
+    document.getElementById('modeVal').textContent = isTension ? 'Tension' : 'Compression';
+}
+function toggleShiftMode(){
+    state.shiftMode = state.shiftMode === 1 ? 0 : 1;
+    renderMode();
+    sendCommand('M' + state.shiftMode);
+}
+
+// ---- threshold slider (dua marker independen: Tension & Compression, 0-1000) ----
+const range = {min:0, max:1000};
+function renderThresh(){
+    document.getElementById('tensionVal').textContent = state.tensionThreshold;
+    document.getElementById('compressionVal').textContent = state.compressionThreshold;
+    const tPct = (clamp(state.tensionThreshold, range.min, range.max) - range.min) / (range.max - range.min) * 100;
+    const cPct = (clamp(state.compressionThreshold, range.min, range.max) - range.min) / (range.max - range.min) * 100;
+    const midPct = (clamp(state.center, range.min, range.max) - range.min) / (range.max - range.min) * 100;
+    document.getElementById('markTension').style.left = tPct + '%';
+    document.getElementById('markCompression').style.left = cPct + '%';
+    document.getElementById('markCenter').style.left = midPct + '%';
+}
+function adjTension(dir){
+    state.tensionThreshold = clamp(state.tensionThreshold + dir * steps.tension, 0, 1000);
+    renderThresh();
+    flashPending('tensionVal');
+    sendCommand('SETVALT' + (state.tensionThreshold * 4));
+}
+function adjCompression(dir){
+    state.compressionThreshold = clamp(state.compressionThreshold + dir * steps.compression, 0, 1000);
+    renderThresh();
+    flashPending('compressionVal');
+    sendCommand('SETVALC' + (state.compressionThreshold * 4));
+}
+function renderDebounce(){
+    document.getElementById('debounceVal').textContent = state.debounce;
+}
+function adjDebounce(dir){
+    state.debounce = clamp(state.debounce + dir * steps.debounce, 0, 500);
+    renderDebounce();
+    flashPending('debounceVal');
+    sendCommand('H' + state.debounce);
+}
+
+// ---- RPM correction (faktor koreksi pembacaan RPM, desimal) ----
+function renderRpmCorr(){
+    document.getElementById('rpmCorrVal').textContent = state.rpmCorrection.toFixed(1);
+}
+function adjRpmCorr(dir){
+    state.rpmCorrection = clamp(+(state.rpmCorrection + dir * steps.rpmCorr).toFixed(2), 0.1, 10);
+    renderRpmCorr();
+    flashPending('rpmCorrVal');
+    sendCommand('RC' + state.rpmCorrection.toFixed(1)); // TODO: sesuaikan kode command dengan firmware asli
+}
+
+// ---- cut duration & pit limiter ----
+let cutVals = {c1:80,c2:70,c3:65,c4:60,c5:55,c6:50,c7:45, pl:5000, pd:60, pr:100};
+const cutRanges = { pl:[0,20000] };
+const cutCmdRange = { c1:1,c2:2,c3:3,c4:4,c5:5,c6:6,c7:7 };
+function adjCut(id, dir){
+    const step = steps[id] || 1;
+    const [lo,hi] = cutRanges[id] || [0,500];
+    cutVals[id] = clamp(cutVals[id] + dir * step, lo, hi);
+    document.getElementById(id).textContent = cutVals[id];
+    flashPending(id);
+    if(cutCmdRange[id]){
+        sendCommand('C' + cutCmdRange[id] + ':' + cutVals[id]);
+    } else if(id === 'pl'){
+        sendCommand('PL' + cutVals[id]);
+    } else if(id === 'pd'){
+        sendCommand('PD' + cutVals[id]);
+    } else if(id === 'pr'){
+        sendCommand('PR' + cutVals[id]);
+    }
+}
+
+// ---- carousel navigation (arrow + swipe) ----
+const track = document.getElementById('track');
+const dots = document.querySelectorAll('#dots .dot');
+const prevArrow = document.getElementById('prevArrow');
+const nextArrow = document.getElementById('nextArrow');
+const totalSlides = document.querySelectorAll('.slide').length;
+let current = 0;
+
+function updateSlide(){
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+    dots.forEach((d,i) => d.classList.toggle('active', i === current));
+    prevArrow.classList.toggle('disabled', current === 0);
+    nextArrow.classList.toggle('disabled', current === totalSlides - 1);
+}
+function goSlide(dir){
+    current = clamp(current + dir, 0, totalSlides - 1);
+    updateSlide();
+}
+dots.forEach((d,i) => d.addEventListener('click', () => { current = i; updateSlide(); }));
+
+let touchStartX = 0;
+track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 40){ goSlide(dx < 0 ? 1 : -1); }
+});
+
+renderMode();
+renderThresh();
+renderDebounce();
+renderRpmCorr();
+updateSlide();
+</script>
+
+</body>
+</html>
