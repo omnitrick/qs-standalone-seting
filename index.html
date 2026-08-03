@@ -202,7 +202,7 @@
                     <div class="thresh-btn" onclick="adjCompression(1)">›</div>
                 </div>
                 <div class="hint">
-                    Hijau = TARIK (Tension), biru = TEKAN (Compression) — kedua nilai ini absolut, cut langsung terjadi persis di titik itu. Segitiga putih = posisi sensor LIVE saat ini (update tiap ~150ms), cuma info, tidak memengaruhi titik trigger.
+                    Hijau = TARIK (Tension), biru = TEKAN (Compression) — kedua nilai ini absolut, cut langsung terjadi persis di titik itu. Segitiga putih = posisi sensor LIVE saat ini.
                 </div>
             </div>
 
@@ -258,7 +258,7 @@
             <div class="slide">
                 <div class="slide-title">CUT DURATION QS (ms)</div>
                 <div class="input-row">
-                    <div class="label-row"><label>1k - 4k</label><div class="step-chip" id="stepchip-c1" onclick="openStepModal('c1')">±5</div></div>
+                    <div class="label-row"><label>0k - 4k</label><div class="step-chip" id="stepchip-c1" onclick="openStepModal('c1')">±5</div></div>
                     <div class="cut-controls">
                         <div class="cut-btn" onclick="adjCut('c1',-1)">−</div>
                         <div class="cut-val" id="c1">80</div>
@@ -391,7 +391,7 @@
                 </div>
 
                 <div class="thresh-row" style="flex-direction:column;align-items:stretch;gap:10px;">
-                    <div class="lbl" style="color:#dbe3ee;">Ganti Password BLE</div>
+                    <div class="lbl" style="color:#dbe3ee;">Password modul(opsional)</div>
                     <div style="display:flex;gap:10px;">
                         <input type="text" id="newPasswordInput" placeholder="Password baru (6 digit)" maxlength="6" inputmode="numeric" pattern="[0-9]*"
                             style="flex:1;background:var(--bg-input);border:1px solid var(--border-color);color:#fff;padding:10px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:0.9rem;outline:none;">
@@ -400,12 +400,12 @@
                     </div>
                 </div>
                 <div class="hint">
-                    Password disimpan otomatis di HP ini (localStorage), jadi gak perlu diketik ulang tiap connect. Kalau lupa: tahan tombol PIT 5 detik pas modul baru nyala buat reset password (setting lain gak ikut kehapus).
+                    Password untuk konek modul, default tidak ada password 
                 </div>
             </div>
 
             <div class="slide">
-                <div class="slide-title">INFO FIRMWARE</div>
+                <div class="slide-title">TENTANG FIRMWARE</div>
                 <div class="fw-info">
                     <div class="fw-label">VERSI FIRMWARE</div>
                     <div class="fw-ver" id="fwVerSlide">—</div>
@@ -413,13 +413,13 @@
                     <div class="fw-build" id="fwBuildSlide">—</div>
                 </div>
                 <div class="hint">
-                    Data ini dikirim otomatis dari modul begitu connect BLE. Belum connect = masih kosong.
+                    Semoga bermanfaat 🗿
                 </div>
 
                 <div class="thresh-row" style="flex-direction:column;align-items:stretch;gap:10px;">
-                    <div class="lbl" style="color:#dbe3ee;">Nickname Modul</div>
+                    <div class="lbl" style="color:#dbe3ee;">Nickname Modul(opsional)</div>
                     <div style="display:flex;gap:10px;">
-                        <input type="text" id="nicknameInput" placeholder="mis. MotoGP, Balap1" maxlength="15"
+                        <input type="text" id="nicknameInput" placeholder="QUICK.ABCD" maxlength="15"
                             style="flex:1;background:var(--bg-input);border:1px solid var(--border-color);color:#fff;padding:10px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:0.9rem;outline:none;">
                         <button onclick="setNickname()"
                             style="background:var(--accent-orange);border:none;color:#fff;padding:0 18px;border-radius:8px;font-weight:bold;cursor:pointer;font-family:'Roboto',sans-serif;">Simpan</button>
